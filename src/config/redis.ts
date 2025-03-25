@@ -1,15 +1,16 @@
+import { env } from 'process';
 import { createClient } from 'redis';
 
 // Type for our Redis client
 export type RedisClient = ReturnType<typeof createClient>;
 
 const client = createClient({
-  username: 'default',
-  password: 'ukut7doSHlQF3hQDq0SLqKsYAb719jAj',
+  username:env.REDIS_USER,
+  password: env.REDIS_PASSWORD,
   socket: {
-    host: 'redis-10310.c16.us-east-1-2.ec2.redns.redis-cloud.com',
+    host: env.REDIS_HOST,
     port: 10310,
-    tls: true, // Enable for Redis Cloud
+    tls: true, 
     reconnectStrategy: (retries) => Math.min(retries * 100, 5000) // Exponential backoff
   }
 });
