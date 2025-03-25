@@ -1,15 +1,16 @@
 import mongoose from 'mongoose';
 import { setTimeout } from 'timers/promises';
+import { env } from './env';
 
-const MAX_RETRIES = 5; // Maximum number of retry attempts
-const RETRY_DELAY_MS = 5000; // Delay between retries in milliseconds
-const MONGO_URI = process.env.MONGO_URI!;
+const MAX_RETRIES = 5; 
+const RETRY_DELAY_MS = 5000; 
+const MONGO_URI = env.MONGO_URI!;
 
 export const connectDB = async (retryCount = 0): Promise<void> => {
   try {
     const conn = await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-      socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+      serverSelectionTimeoutMS: 5000, 
+      socketTimeoutMS: 45000, 
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
