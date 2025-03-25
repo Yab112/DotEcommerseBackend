@@ -1,0 +1,26 @@
+# Node modules  
+node_modules/  
+
+# Build output  
+dist/  
+build/  
+
+# TypeScript  
+*.tsbuildinfo  
+
+# Logs  
+logs  
+*.log  
+
+# Environment variables  
+.env  
+.env.local  
+.env.*.local  
+
+# OS generated files  
+.DS_Store  
+Thumbs.db  
+
+# Other  
+package-lock.json  
+yarn.lock  
