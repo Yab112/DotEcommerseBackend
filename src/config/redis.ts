@@ -2,8 +2,6 @@ import { createClient } from 'redis';
 import { env } from './env';
 
 export type RedisClient = ReturnType<typeof createClient>;
-console.log("DEBUG: Redis URL:", env.REDIS_URL);
-console.log("DEBUG: Redis URL:", process.env.REDIS_URL);
 
 // Use your full Upstash Redis URL
 const redisUrl = env.REDIS_URL;

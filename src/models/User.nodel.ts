@@ -25,6 +25,10 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: true,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
     address: {
       street: { type: String },
       city: { type: String },

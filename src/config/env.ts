@@ -2,6 +2,7 @@
 import { cleanEnv, str, num, url } from 'envalid';
 import dotenv from 'dotenv';
 import path from 'path';
+import { number } from 'joi';
 
 // 1. Load .env file
 const envPath = path.join(__dirname, '../../.env');
@@ -31,6 +32,8 @@ export const env = cleanEnv(process.env, {
   EMAIL_PASS: str(),
   EMAIL_FROM:str(),
 
+  //otp
+  OTP_EXPIRES_IN: num({ default: 600 }),
 
   // Production-only variables
   ...(process.env.NODE_ENV === 'production'

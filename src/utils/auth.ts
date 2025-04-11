@@ -1,3 +1,4 @@
+//utils/auth.ts
 import jwt, { Secret, JwtPayload, SignOptions } from 'jsonwebtoken';
 import { Types } from 'mongoose';
 import { env } from '../config/env';
