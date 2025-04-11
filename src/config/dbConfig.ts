@@ -14,7 +14,7 @@ export const connectDB = async (retryCount = 0): Promise<void> => {
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-    conn.connection.on('error', (err) => {
+    conn.connection.on('error', (err) => {  
       console.error('❌ MongoDB connection error:', err);
     });
 

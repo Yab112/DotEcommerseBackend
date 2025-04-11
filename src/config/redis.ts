@@ -5,14 +5,14 @@ import { createClient } from 'redis';
 export type RedisClient = ReturnType<typeof createClient>;
 
 const client = createClient({
-  username:env.REDIS_USER,
+  username: env.REDIS_USER,
   password: env.REDIS_PASSWORD,
   socket: {
     host: env.REDIS_HOST,
     port: 10310,
-    tls: true, 
-    reconnectStrategy: (retries) => Math.min(retries * 100, 5000) // Exponential backoff
-  }
+    tls: true,
+    reconnectStrategy: (retries) => Math.min(retries * 100, 5000), // Exponential backoff
+  },
 });
 
 // Error handling
