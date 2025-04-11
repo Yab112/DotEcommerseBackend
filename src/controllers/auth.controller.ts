@@ -41,6 +41,8 @@ export class AuthController {
     }
   }
 
+  //resend otp if otp is expired
+
   static async verifyOtp(req: Request, res: Response): Promise<void> {
     try {
       const { accessToken, refreshToken, user } = await AuthService.verifyOtp(

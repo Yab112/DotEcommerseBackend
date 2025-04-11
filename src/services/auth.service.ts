@@ -4,6 +4,7 @@ import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '.
 import { sendOtpEmail } from './email.service';
 import { getRedisClient, RedisClient } from '../config/redis';
 import User from '@/models/User.nodel';
+import { hashPassword } from '@/utils/passwordUtils';
 
 export class AuthService {
   static async register(userData: {
@@ -17,7 +18,7 @@ export class AuthService {
       throw new Error('Email already in use');
     }
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const hashedPassword = await hashPassword(userData.password);
     const user = new User({
       ...userData,
       password: hashedPassword,
@@ -59,20 +60,17 @@ export class AuthService {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const client: RedisClient = await getRedisClient();
-    // Store OTP in Redis with 10-minute expiration
     await client.setEx(`otp:${email}`, 10 * 60, otp);
     await sendOtpEmail(email, otp);
   }
 
   static async verifyOtp(email: string, otp: string) {
     const client: RedisClient = await getRedisClient();
-    // Retrieve OTP from Redis
     const storedOtp = await client.get(`otp:${email}`);
     if (!storedOtp || storedOtp !== otp) {
       throw new Error('Invalid or expired OTP');
     }
 
-    // Delete OTP from Redis after verification
     await client.del(`otp:${email}`);
 
     const user = await User.findOne({ email });
@@ -83,7 +81,7 @@ export class AuthService {
     const accessToken = generateAccessToken({
       id: user._id.toString(),
       email: user.email,
-       isAdmin: user.isAdmin ?? false,
+      isAdmin: user.isAdmin ?? false,
     });
     const refreshToken = generateRefreshToken({
       id: user._id.toString(),
@@ -104,7 +102,7 @@ export class AuthService {
       const accessToken = generateAccessToken({
         id: user._id.toString(),
         email: user.email,
-         isAdmin: user.isAdmin ?? false,
+        isAdmin: user.isAdmin ?? false,
       });
       return { accessToken };
     } catch (error) {
