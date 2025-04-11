@@ -12,6 +12,7 @@ const app = express();
 app.use(morgan('combined'));
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(express.json());
 
 //auth routes
 app.use('/api/auth', authRoutes);
