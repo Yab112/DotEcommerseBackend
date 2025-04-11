@@ -26,6 +26,14 @@ export const env = cleanEnv(process.env, {
   REDIS_HOST: str(),
   REDIS_PORT: num(),
   REDIS_TTL: num({ default: 3600 }),
+  JWT_REFRESH_SECRET: str({ default: 'your_refresh_secret' }),
+  JWT_REFRESH_EXPIRES_IN: str({ default: '30d' }),
+
+  //email
+  EMAIL_USER: str(),
+  EMAIL_PASS: str(),
+  EMAIL_FROM:str(),
+
 
   // Production-only variables
   ...(process.env.NODE_ENV === 'production'
