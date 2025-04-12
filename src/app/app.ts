@@ -14,12 +14,9 @@ app.use(morgan('combined'));
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.json());
-
 //auth routes
+
 app.use('/api/auth', authRoutes);
-
-app.use("/health",healthRouter)
-
-app.use(express.json());
-app.use("/",ProductRoute)
+app.use('/health',healthRouter)
+app.use('/api/product',ProductRoute)
 export default app;

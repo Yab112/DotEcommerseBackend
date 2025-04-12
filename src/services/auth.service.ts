@@ -27,7 +27,7 @@ export class AuthService {
     try {
       await generateAndSendOtp(email);
     } catch (error) {
-      await User.deleteOne({ _id: user._id }); // Rollback on OTP failure
+      await User.deleteOne({ _id: user._id }); 
       throw new Error('Failed to send OTP');
     }
     return user;
@@ -60,10 +60,12 @@ export class AuthService {
       email: user.email,
       isAdmin: user.isAdmin ?? false,
     });
+    
     const refreshToken = generateRefreshToken({
       id: user._id.toString(),
       email: user.email,
     });
+
     // Store refresh token in Redis
     const client = await getRedisClient();
     await client.setex(

@@ -23,5 +23,5 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/servey_app:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/servey_app:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/eccomerce:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/eccomerce:latest

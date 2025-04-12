@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import productService from '../services/product.service'; // Assuming you have a product service
-import { IProduct } from '../models/product.model'; // Assuming you have a product model
+import productService from '../services/product.service'; 
 
 export class ProductController {
   /**
@@ -10,6 +9,7 @@ export class ProductController {
   async createProduct(req: Request, res: Response): Promise<void> {
     try {
       const product = await productService.createProduct(req.body);
+      
       res.status(201).json({
         success: true,
         data: product
@@ -240,9 +240,9 @@ export class ProductController {
     try {
       const { rating, comment } = req.body;
       const { id } = req.params;
-      
+    
       // Assuming user ID is available from authentication middleware
-      const userId = req.user?.id;
+      const userId = req.body.user?.id;
       
       if (!userId) {
         res.status(401).json({

@@ -18,12 +18,13 @@ const orderSchema = new Schema<IOrder>(
       enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
       default: 'pending',
     },
+    //google map address
     shippingAddress: {
       street: { type: String, required: true },
       city: { type: String, required: true },
-      state: { type: String, required: true },
-      postalCode: { type: String, required: true },
-      country: { type: String, required: true },
+      state: { type: String, required: false },
+      postalCode: { type: String, required: false },
+      country: { type: String, required: false },
     },
   },
   { timestamps: true }

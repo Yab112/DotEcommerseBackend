@@ -1,4 +1,5 @@
-import Product, { IProduct } from '../models/product.model';
+import { IProduct } from '@/dto/product.dto';
+import Product from '../models/product.model';
 import { FilterQuery, UpdateQuery } from 'mongoose';
 
 export class ProductService {

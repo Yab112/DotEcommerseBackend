@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { authService } from '@/services/auth.service';
-import { setRefreshTokenCookie, clearRefreshTokenCookie } from '@/utils/cookie';
+import {
+  setRefreshTokenCookie,
+  clearRefreshTokenCookie,
+  setAccessTokenCookie,
+} from '@/utils/cookie';
 import { verifyRefreshToken } from '@/utils/jwt';
 import { hashPassword } from '@/utils/passwordUtils';
 
@@ -19,8 +23,12 @@ class AuthController {
     try {
       const { email, password } = req.body;
       const { accessToken, refreshToken, user } = await authService.login(email, password);
+
+      // Set both tokens as HTTP-only cookies
+      setAccessTokenCookie(res, accessToken);
       setRefreshTokenCookie(res, refreshToken);
-      res.status(200).json({ message: 'Login successful', accessToken, user });
+
+      res.status(200).json({ message: 'Login successful', user });
     } catch (error: any) {
       res.status(401).json({ message: error.message });
     }
@@ -71,7 +79,8 @@ class AuthController {
       const refreshToken = req.cookies.refreshToken;
       if (!refreshToken) throw new Error('No refresh token provided');
       const accessToken = await authService.refreshAccessToken(refreshToken);
-      res.status(200).json({ accessToken });
+      setAccessTokenCookie(res, accessToken);
+      res.status(200).json({ message: 'Access token refreshed' });
     } catch (error: any) {
       res.status(401).json({ message: error.message });
     }
