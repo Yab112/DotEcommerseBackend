@@ -5,6 +5,7 @@ import healthRouter from '@/routes/v1/health.routes';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import authRoutes from '@/routes/v1/auth.routes';
+import ProductRoute from '@/routes/v1/product.routes';
 dotenv.config();
 
 const app = express();
@@ -19,6 +20,7 @@ app.use("/user",Userrouter)
 app.use('/api/auth', authRoutes);
 
 app.use("/health",healthRouter)
-app.use(express.json());
 
+app.use(express.json());
+app.use("/",ProductRoute)
 export default app;
