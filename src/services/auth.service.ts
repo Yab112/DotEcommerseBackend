@@ -66,7 +66,7 @@ export class AuthService {
     });
     // Store refresh token in Redis
     const client = await getRedisClient();
-    await client.setEx(
+    await client.setex(
       `refresh_token:${user._id}`,
       7 * 24 * 60 * 60, // 7 days
       refreshToken

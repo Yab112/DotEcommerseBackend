@@ -23,7 +23,8 @@ export const env = cleanEnv(process.env, {
   JWT_EXPIRES_IN: str({ default: '7d' }),
 
   // Redis Configuration
-  REDIS_URL: str(),
+  REDIS_TOKEN: str(),
+  REDIS_URL: str({ default: 'https://your-upstash-redis-url' }),
   JWT_REFRESH_SECRET: str({ default: 'your_refresh_secret' }),
   JWT_REFRESH_EXPIRES_IN: str({ default: '30d' }),
 
