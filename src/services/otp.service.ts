@@ -27,8 +27,7 @@ export const generateAndSendOtp = async (email: string): Promise<void> => {
 export const verifyOtpCode = async (email: string, otp: string): Promise<boolean> => {
   const client = await getRedisClient();
   const storedOtp = await client.get(`otp:${email}`);
-  console.log(`Verifying OTP: email=${email}, storedOtp=${storedOtp}, providedOtp=${otp}`);
-  if (storedOtp !== otp) {
+  if (storedOtp?.toString() !== otp?.toString()) {
     console.log(`OTP mismatch: storedOtp=${storedOtp}, providedOtp=${otp}`);
     return false;
   }
