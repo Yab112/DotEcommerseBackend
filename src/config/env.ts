@@ -1,6 +1,8 @@
+//config/env.ts
 import { cleanEnv, str, num, url } from 'envalid';
 import dotenv from 'dotenv';
 import path from 'path';
+import { number } from 'joi';
 
 // 1. Load .env file
 const envPath = path.join(__dirname, '../../.env');
@@ -21,11 +23,7 @@ export const env = cleanEnv(process.env, {
   JWT_EXPIRES_IN: str({ default: '7d' }),
 
   // Redis Configuration
-  REDIS_USER: str({ default: 'default' }),
-  REDIS_PASSWORD: str(),
-  REDIS_HOST: str(),
-  REDIS_PORT: num(),
-  REDIS_TTL: num({ default: 3600 }),
+  REDIS_URL: str(),
   JWT_REFRESH_SECRET: str({ default: 'your_refresh_secret' }),
   JWT_REFRESH_EXPIRES_IN: str({ default: '30d' }),
 
@@ -34,6 +32,8 @@ export const env = cleanEnv(process.env, {
   EMAIL_PASS: str(),
   EMAIL_FROM:str(),
 
+  //otp
+  OTP_EXPIRES_IN: num({ default: 600 }),
 
   // Production-only variables
   ...(process.env.NODE_ENV === 'production'
@@ -56,26 +56,9 @@ if (env.NODE_ENV === 'production') {
   if (env.MONGO_URI.includes('localhost')) {
     throw new Error('Cannot use local MongoDB in production');
   }
-
-  // Redis security
-  if (env.REDIS_PASSWORD.length < 16) {
-    throw new Error('Redis password must be at least 16 characters in production');
-  }
 } else {
   // Development warnings
   if (env.JWT_SECRET === '12345678gyhujiokj$RDFTGY&B*NUIMOK<PL@fnuhebvsjfgvskeurh$#%678') {
     console.warn('⚠️  Using default JWT secret in development - change this in production!');
   }
 }
-
-// 4. Derived configuration
-export const redisConfig = {
-  username: env.REDIS_USER,
-  password: env.REDIS_PASSWORD,
-  socket: {
-    host: env.REDIS_HOST,
-    port: env.REDIS_PORT,
-    tls: true, // Required for Redis Cloud
-    reconnectStrategy: (retries: number) => Math.min(retries * 100, 5000)
-  }
-};

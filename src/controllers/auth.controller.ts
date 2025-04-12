@@ -1,87 +1,116 @@
-// src/controllers/auth.controller.ts
 import { Request, Response } from 'express';
-import { AuthService } from '../services/auth.service';
+import { authService } from '@/services/auth.service';
+import { setRefreshTokenCookie, clearRefreshTokenCookie } from '@/utils/cookie';
+import { verifyRefreshToken } from '@/utils/jwt';
+import { hashPassword } from '@/utils/passwordUtils';
 
-export class AuthController {
-  static async register(req: Request, res: Response): Promise<void> {
+class AuthController {
+  async register(req: Request, res: Response) {
     try {
-      const user = await AuthService.register(req.body);
-      res.status(201).json({ message: 'User registered successfully', user });
+      const { firstName, lastName, email, password, phone } = req.body;
+      const user = await authService.registerUser(firstName, lastName, email, password, phone);
+      res.status(201).json({ message: 'User registered. OTP sent.', userId: user._id });
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ message: error.message });
     }
   }
 
-  static async login(req: Request, res: Response): Promise<void> {
+  async login(req: Request, res: Response) {
     try {
-      const { accessToken, refreshToken, user } = await AuthService.login(
-        req.body.email,
-        req.body.password
-      );
-
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-
-      res.json({ accessToken, user });
+      const { email, password } = req.body;
+      const { accessToken, refreshToken, user } = await authService.login(email, password);
+      setRefreshTokenCookie(res, refreshToken);
+      res.status(200).json({ message: 'Login successful', accessToken, user });
     } catch (error: any) {
-      res.status(401).json({ error: error.message });
+      res.status(401).json({ message: error.message });
     }
   }
 
-  static async generateOtp(req: Request, res: Response): Promise<void> {
+  async verifyOtp(req: Request, res: Response) {
     try {
-      await AuthService.generateOtp(req.body.email);
-      res.json({ message: 'OTP sent to email' });
+      const { email, otp } = req.body;
+      const user = await authService.verifyOtp(email, otp);
+      res.status(200).json({ message: 'OTP verified', user });
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ message: error.message });
     }
   }
 
-  static async verifyOtp(req: Request, res: Response): Promise<void> {
+  async resendOtp(req: Request, res: Response) {
     try {
-      const { accessToken, refreshToken, user } = await AuthService.verifyOtp(
-        req.body.email,
-        req.body.otp
-      );
-
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-
-      res.json({ accessToken, user });
+      const { email } = req.body;
+      await authService.resendOtp(email);
+      res.status(200).json({ message: 'OTP resent' });
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ message: error.message });
     }
   }
 
-  static async refreshToken(req: Request, res: Response): Promise<void> {
+  async forgotPassword(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+      await authService.forgotPassword(email);
+      res.status(200).json({ message: 'Otp send to reset your password' });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async verifyForgotPasswordOtp(req: Request, res: Response) {
+    try {
+      const { email, otp, newPassword } = req.body;
+      const user = await authService.verifyForgotPasswordOtp(email, otp, newPassword);
+      res.status(200).json({ message: 'OTP verified', user });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async refreshToken(req: Request, res: Response) {
     try {
       const refreshToken = req.cookies.refreshToken;
-      if (!refreshToken) {
-        res.status(401).json({ error: 'No refresh token provided' });
-        return;
-      }
-
-      const { accessToken } = await AuthService.refreshToken(refreshToken);
-      res.json({ accessToken });
+      if (!refreshToken) throw new Error('No refresh token provided');
+      const accessToken = await authService.refreshAccessToken(refreshToken);
+      res.status(200).json({ accessToken });
     } catch (error: any) {
-      res.status(401).json({ error: error.message });
+      res.status(401).json({ message: error.message });
     }
   }
 
-  static async logout(req: Request, res: Response): Promise<void> {
-    res.clearCookie('refreshToken', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-    });
-    res.json({ message: 'Logged out successfully' });
+  async requestPasswordReset(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+      await authService.forgotPassword(email);
+      res.status(200).json({ message: 'Password reset OTP sent' });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async verifyresetPassword(req: Request, res: Response) {
+    try {
+      const { email, otp, newPassword } = req.body;
+      const hashedPassword = await hashPassword(newPassword);
+      await authService.resetPassword(email, otp, hashedPassword);
+      res.status(200).json({ message: 'Password reset successfully' });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async logout(req: Request, res: Response) {
+    try {
+      const refreshToken = req.cookies.refreshToken;
+      if (refreshToken) {
+        const payload = verifyRefreshToken(refreshToken) as { id: string };
+        await authService.logout(payload.id);
+      }
+      clearRefreshTokenCookie(res);
+      res.status(200).json({ message: 'Logged out successfully' });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
   }
 }
+
+export default new AuthController();

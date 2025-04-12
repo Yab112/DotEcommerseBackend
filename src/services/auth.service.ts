@@ -1,43 +1,60 @@
-// src/services/auth.service.ts
-import bcrypt from 'bcryptjs';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
-import { sendOtpEmail } from './email.service';
-import { getRedisClient, RedisClient } from '../config/redis';
+import { getRedisClient } from '@/config/redis';
 import User from '@/models/User.nodel';
+import { generateAndSendOtp, verifyOtpCode } from './otp.service';
+import { hashPassword, comparePassword } from '@/utils/passwordUtils';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/utils/jwt';
+import { IUser } from '@/dto/user.dto';
 
 export class AuthService {
-  static async register(userData: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-  }) {
-    const existingUser = await User.findOne({ email: userData.email });
-    if (existingUser) {
-      throw new Error('Email already in use');
-    }
-
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const user = new User({
-      ...userData,
+  async registerUser(
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string,
+    phone?: string
+  ): Promise<IUser> {
+    const existing = await User.findOne({ email });
+    if (existing) throw new Error('User already exists');
+    const hashedPassword = await hashPassword(password);
+    const user = await User.create({
+      firstName,
+      lastName,
+      email,
       password: hashedPassword,
+      phone,
+      isVerified: false,
     });
-
-    await user.save();
+    try {
+      await generateAndSendOtp(email);
+    } catch (error) {
+      await User.deleteOne({ _id: user._id }); // Rollback on OTP failure
+      throw new Error('Failed to send OTP');
+    }
     return user;
   }
 
-  static async login(email: string, password: string) {
+  async verifyOtp(email: string, otp: string): Promise<IUser> {
+    const isValid = await verifyOtpCode(email, otp);
+    if (!isValid) throw new Error('Invalid or expired OTP');
+    const user = await User.findOneAndUpdate(
+      { email },
+      { isVerified: true },
+      { new: true }
+    );
+    if (!user) throw new Error('User not found');
+    return user;
+  }
+
+  async login(email: string, password: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user: IUser;
+  }> {
     const user = await User.findOne({ email });
-    if (!user) {
-      throw new Error('Invalid credentials');
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw new Error('Invalid credentials');
-    }
-
+    if (!user) throw new Error('User not found');
+    if (!user.isVerified) throw new Error('User not verified');
+    const isMatch = await comparePassword(password, user.password);
+    if (!isMatch) throw new Error('Invalid credentials');
     const accessToken = generateAccessToken({
       id: user._id.toString(),
       email: user.email,
@@ -47,68 +64,85 @@ export class AuthService {
       id: user._id.toString(),
       email: user.email,
     });
-
+    // Store refresh token in Redis
+    const client = await getRedisClient();
+    await client.setEx(
+      `refresh_token:${user._id}`,
+      7 * 24 * 60 * 60, // 7 days
+      refreshToken
+    );
     return { accessToken, refreshToken, user };
   }
 
-  static async generateOtp(email: string) {
+
+  async resendOtp(email: string): Promise<void> {
     const user = await User.findOne({ email });
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const client: RedisClient = await getRedisClient();
-    // Store OTP in Redis with 10-minute expiration
-    await client.setEx(`otp:${email}`, 10 * 60, otp);
-    await sendOtpEmail(email, otp);
-  }
-
-  static async verifyOtp(email: string, otp: string) {
-    const client: RedisClient = await getRedisClient();
-    // Retrieve OTP from Redis
-    const storedOtp = await client.get(`otp:${email}`);
-    if (!storedOtp || storedOtp !== otp) {
-      throw new Error('Invalid or expired OTP');
-    }
-
-    // Delete OTP from Redis after verification
-    await client.del(`otp:${email}`);
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    const accessToken = generateAccessToken({
-      id: user._id.toString(),
-      email: user.email,
-       isAdmin: user.isAdmin ?? false,
-    });
-    const refreshToken = generateRefreshToken({
-      id: user._id.toString(),
-      email: user.email,
-    });
-
-    return { accessToken, refreshToken, user };
-  }
-
-  static async refreshToken(refreshToken: string) {
+    if (!user) throw new Error('User not found');
+    if (user.isVerified) throw new Error('User already verified');
     try {
-      const payload = verifyRefreshToken(refreshToken) as { id: string; email: string };
-      const user = await User.findById(payload.id);
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      const accessToken = generateAccessToken({
-        id: user._id.toString(),
-        email: user.email,
-         isAdmin: user.isAdmin ?? false,
-      });
-      return { accessToken };
-    } catch (error) {
-      throw new Error('Invalid refresh token');
+        await generateAndSendOtp(email);
+        }
+    catch (error) {
+        throw new Error('Failed to send OTP');
     }
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await User.findOne({ email });
+    if (!user) throw new Error('User not found');
+    if (!user.isVerified) throw new Error('User not verified');
+    try {
+        await generateAndSendOtp(email);
+        }
+    catch (error) {
+        throw new Error('Failed to send OTP');
+    }
+  }
+
+    async verifyForgotPasswordOtp(email: string, otp: string, newPassword: string): Promise<IUser> {
+        const isValid = await verifyOtpCode(email, otp);
+        if (!isValid) throw new Error('Invalid or expired OTP');
+        const newPasswordhashed = await hashPassword(newPassword); 
+        const user = await User.findOneAndUpdate(
+            { email },
+            { password: newPasswordhashed },
+            { new: true }
+        );
+        if (!user) throw new Error('User not found');
+        return user;
+    }
+
+
+  async resetPassword(email: string, otp: string, newPassword: string): Promise<void> {
+    const isValid = await verifyOtpCode(email, otp);
+    if (!isValid) throw new Error('Invalid or expired OTP');
+    const hashedPassword = await hashPassword(newPassword);
+    const user = await User.findOneAndUpdate(
+      { email },
+      { password: hashedPassword },
+      { new: true }
+    );
+    if (!user) throw new Error('User not found');
+  }
+
+  async refreshAccessToken(refreshToken: string): Promise<string> {
+    const payload = verifyRefreshToken(refreshToken) as { id: string; email: string };
+    const client = await getRedisClient();
+    const storedToken = await client.get(`refresh_token:${payload.id}`);
+    if (storedToken !== refreshToken) throw new Error('Invalid refresh token');
+    const user = await User.findById(payload.id);
+    if (!user) throw new Error('User not found');
+    return generateAccessToken({
+      id: user._id.toString(),
+      email: user.email,
+      isAdmin: user.isAdmin ?? false,
+    });
+  }
+
+  async logout(userId: string): Promise<void> {
+    const client = await getRedisClient();
+    await client.del(`refresh_token:${userId}`);
   }
 }
+
+export const authService = new AuthService();

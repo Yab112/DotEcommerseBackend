@@ -11,6 +11,7 @@ export interface IUser {
     postalCode?: string;
     country?: string;
   };
+  isVerified?: boolean;
   phone?: string;
   orders?: string[];
   cart?: { productId: string; quantity: number }[];

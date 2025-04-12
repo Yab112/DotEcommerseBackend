@@ -6,6 +6,7 @@ export const registerSchema = Joi.object({
   lastName: Joi.string().trim().min(2).max(50).required(),
   email: Joi.string().email().lowercase().required(),
   password: Joi.string().min(8).required(),
+  phone: Joi.string().pattern(/^[0-9]+$/).length(10).optional(),
 });
 
 export const loginSchema = Joi.object({
@@ -14,6 +15,46 @@ export const loginSchema = Joi.object({
 });
 
 export const otpSchema = Joi.object({
+  email: Joi.string().email().lowercase().required(),
+  otp: Joi.string().length(6).pattern(/^[0-9]+$/).required(),
+});
+
+export const forgotPassword = Joi.object({
+  email: Joi.string().email().lowercase().required()
+});
+
+export const forgotPasswordshema = Joi.object({
+  email: Joi.string().email().lowercase().required(),
+  otp: Joi.string().length(6).pattern(/^[0-9]+$/).required(),
+  newPassword: Joi.string().min(8).required(),
+});
+
+export const resendotpSchema = Joi.object({
+  email: Joi.string().email().lowercase().required()
+});
+
+export const resetPasswordSchema = Joi.object({
+  email: Joi.string().email().lowercase().required(),
+  password: Joi.string().min(8).required(),
+  otp: Joi.string().length(6).pattern(/^[0-9]+$/).required(),
+});
+
+export const refreshTokenSchema = Joi.object({
+  refreshToken: Joi.string().required(),
+});
+
+export const logoutSchema = Joi.object({
+  refreshToken: Joi.string().required(),
+});
+
+
+export const verifyOtpSchema = Joi.object({
+  email: Joi.string().email().lowercase().required(),
+  otp: Joi.string().length(6).pattern(/^[0-9]+$/).required(),
+});
+
+
+export const resetPasswordRequestSchema = Joi.object({
   email: Joi.string().email().lowercase().required(),
   otp: Joi.string().length(6).pattern(/^[0-9]+$/).required(),
 });
