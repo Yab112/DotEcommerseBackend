@@ -1,43 +1,30 @@
-import { createClient } from 'redis';
+import { Redis } from '@upstash/redis';
 import { env } from './env';
 
-export type RedisClient = ReturnType<typeof createClient>;
+export type RedisClient = Redis;
 
-// Use your full Upstash Redis URL
-const redisUrl = env.REDIS_URL;
-
-const client = createClient({
-  url: redisUrl,
-  socket: {
-    tls: true,
-    reconnectStrategy: (retries) => {
-      console.log(`Redis reconnect attempt #${retries}`);
-      return Math.min(retries * 100, 5000);
-    },
-  },
-});
-
-client.on('error', (err) => console.error('Redis Client Error:', err));
-client.on('ready', () => console.log('Redis connected successfully'));
-
-let connectionPromise: Promise<RedisClient> | null = null;
+let client: RedisClient | null = null;
 
 export const getRedisClient = async (): Promise<RedisClient> => {
-  if (!connectionPromise) {
-    connectionPromise = client.connect();
+  if (!client) {
+    client = new Redis({
+      url: env.REDIS_URL,
+      token: env.REDIS_TOKEN,
+    });
+    console.log('Upstash Redis client initialized');
+    // Test connection
+    try {
+      await client.set('test:key', 'testvalue', { ex: 10 });
+      const value = await client.get('test:key');
+      console.log(`Redis test: ${value}`);
+    } catch (err) {
+      console.error('Redis test failed:', err);
+      throw err;
+    }
   }
-  await connectionPromise;
   return client;
 };
 
-process.on('SIGINT', async () => {
-  await client.quit();
-  console.log('Redis connection closed');
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  await client.quit();
-  console.log('Redis connection closed');
-  process.exit(0);
-});
+// No explicit cleanup needed for @upstash/redis (HTTP-based)
+process.on('SIGINT', () => process.exit(0));
+process.on('SIGTERM', () => process.exit(0));
