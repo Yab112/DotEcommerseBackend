@@ -21,6 +21,5 @@ logs
 .DS_Store  
 Thumbs.db  
 
-# Other  
-package-lock.json  
+# Other 
 yarn.lock  
