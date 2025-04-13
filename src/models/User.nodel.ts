@@ -14,6 +14,14 @@ const userSchema = new Schema<IUser>(
       required: true,
       trim: true,
     },
+    profilePicture: { 
+      type: String,
+      default: '', 
+    },
+    bio: { 
+      type: String,
+      default: '', 
+    },
     email: {
       type: String,
       required: true,
@@ -23,7 +31,18 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: true,
+      required: true, 
+      default: "", 
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, 
+    },
+    loginMethod: {
+      type: String,
+      enum: ['password', 'google', 'both'],
+      default: 'password',
     },
     isVerified: {
       type: Boolean,
@@ -65,6 +84,18 @@ const userSchema = new Schema<IUser>(
     timestamps: true,
   }
 );
+
+// Ensure indexes for performance
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ googleId: 1} ,{ unique: true });
+
+// Pre-save hook to allow null password for Google users
+userSchema.pre('save', function (next) {
+  if (this.loginMethod === 'google' && !this.password) {
+    this.password = ""; 
+  }
+  next();
+});
 
 const User = model<IUser>('User', userSchema);
 export default User;

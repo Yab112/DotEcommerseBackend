@@ -4,6 +4,10 @@ export interface IUser {
   lastName: string;
   email: string;
   password: string;
+  googleId?: string;
+  loginMethod?: 'password' | 'google' | 'both';
+  profilePicture?: string;
+  bio?: string;
   address?: {
     street?: string;
     city?: string;
