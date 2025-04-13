@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/server.ts",
+   "type": "module",
   "scripts": {
     "dev": "nodemon -r tsconfig-paths/register -r dotenv/config src/server.ts",
     "start": "node -r tsconfig-paths/register -r dotenv/config dist/server.js",
