@@ -81,6 +81,14 @@ const router = Router();
   );
   
   router.post('/logout', AuthController.logout);
+
+  //google auth
+  // router.get('/auth/google', AuthController.googleAuth);
+  // router.get(
+  //   '/auth/google/callback',
+  //   authRateLimiterMiddleware,
+  //   AuthController.googleAuthCallback
+  // );
 })();
 
 export default router;

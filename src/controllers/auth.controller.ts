@@ -5,8 +5,10 @@ import {
   clearRefreshTokenCookie,
   setAccessTokenCookie,
 } from '@/utils/cookie';
-import { verifyRefreshToken } from '@/utils/jwt';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/utils/jwt';
 import { hashPassword } from '@/utils/passwordUtils';
+import passport from 'passport';
+import { getRedisClient } from '@/config/redis';
 
 class AuthController {
   async register(req: Request, res: Response) {
@@ -119,6 +121,45 @@ class AuthController {
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
+  }
+
+  static googleAuth(req: Request, res: Response) {
+    passport.authenticate('google', {
+      scope: ['profile', 'email'],
+      session: false,
+    })(req, res);
+  }
+
+  static async googleAuthCallback(req: Request, res: Response) {
+    passport.authenticate('google', { session: false })(req, res, async () => {
+      try {
+        const user = req.user as any;
+        const accessToken = generateAccessToken({
+          id: user._id.toString(),
+          email: user.email,
+          isAdmin: user.isAdmin ?? false,
+        });
+        const refreshToken = generateRefreshToken({
+          id: user._id.toString(),
+          email: user.email,
+        });
+        const client = await getRedisClient();
+        await client.setex(`refresh_token:${user._id}`, 7 * 24 * 60 * 60, refreshToken);
+        setAccessTokenCookie(res, accessToken);
+        setRefreshTokenCookie(res, refreshToken);
+        res.json({
+          user: {
+            id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            isAdmin: user.isAdmin,
+          },
+        });
+      } catch (error) {
+        res.status(500).json({ error: 'Google authentication failed' });
+      }
+    });
   }
 }
 

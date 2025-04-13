@@ -23,6 +23,7 @@ export class AuthService {
       password: hashedPassword,
       phone,
       isVerified: false,
+      loginMethod: 'password',
     });
     try {
       await generateAndSendOtp(email);
@@ -52,6 +53,9 @@ export class AuthService {
   }> {
     const user = await User.findOne({ email });
     if (!user) throw new Error('User not found');
+    if (user.password === "") {
+      throw new Error( 'This account uses Google login. Please use /auth/google.')
+    }
     if (!user.isVerified) throw new Error('User not verified');
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) throw new Error('Invalid credentials');
