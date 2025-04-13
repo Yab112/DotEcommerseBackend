@@ -33,6 +33,11 @@ export const env = cleanEnv(process.env, {
   EMAIL_PASS: str(),
   EMAIL_FROM:str(),
 
+
+  //google 
+  GOOGLE_CLIENT_ID: str(),
+  GOOGLE_CLIENT_SECRET: str(),
+  GOOGLE_CALLBACK_URL: str({ default: 'http://localhost:5000/auth/google/callback' }),
   //otp
   OTP_EXPIRES_IN: num({ default: 600 }),
 

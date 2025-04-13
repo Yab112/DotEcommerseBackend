@@ -85,14 +85,11 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-// Ensure indexes for performance
-userSchema.index({ email: 1 }, { unique: true });
-userSchema.index({ googleId: 1} ,{ unique: true });
-
-// Pre-save hook to allow null password for Google users
 userSchema.pre('save', function (next) {
   if (this.loginMethod === 'google' && !this.password) {
-    this.password = ""; 
+    this.password = "";
+  } else if (!this.password && this.loginMethod !== 'google') {
+    this.invalidate('password', 'Password is required for non-Google users');
   }
   next();
 });
