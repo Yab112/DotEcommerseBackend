@@ -42,13 +42,13 @@ export const env = cleanEnv(process.env, {
   OTP_EXPIRES_IN: num({ default: 600 }),
 
   // Production-only variables
-  ...(process.env.NODE_ENV === 'production'
-    ? {
-        SENTRY_DSN: str(),
-        AWS_ACCESS_KEY_ID: str(),
-        AWS_SECRET_ACCESS_KEY: str(),
-      }
-    : {}),
+  // ...(process.env.NODE_ENV === 'production'
+  //   ? {
+  //       SENTRY_DSN: str(),
+  //       AWS_ACCESS_KEY_ID: str(),
+  //       AWS_SECRET_ACCESS_KEY: str(),
+  //     }
+  //   : {}),
 });
 
 // 3. Runtime validation

@@ -1,38 +1,24 @@
-# Stage 1: Build
-FROM node:18.17.1-alpine3.18 as builder
+# Use official Node.js 18 (or 20) on Alpine 3.19
+FROM node:18-alpine3.19
 
+# Set working directory
 WORKDIR /app
 
-# Install dependencies first for better caching
+# Install dependencies
 COPY package*.json ./
-COPY tsconfig.json ./
-RUN npm ci
+RUN npm install 
 
-# Copy source files
-COPY src ./src
-COPY config ./config
-COPY .env ./
+# Copy source code
+COPY . .
 
 # Build TypeScript
 RUN npm run build
 
-# Stage 2: Runtime
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy built files from builder
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/.env ./
+# Use environment variables
+ENV NODE_ENV=production
 
 # Expose port
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD node dist/utils/healthCheck.js || exit 1
-
-# Start command
-CMD ["node", "dist/server.js"]
+# Start the app
+CMD ["node", "-r", "tsconfig-paths/register", "-r", "dotenv/config", "dist/server.js"]
