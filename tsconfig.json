@@ -16,7 +16,7 @@
     }
   },
   "include": ["src/**/*", "types/**/*"],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules","dist"],
   "ts-node": {
     "transpileOnly": true, // Skip type checking for faster startup
     "require": ["tsconfig-paths/register"] // Support @/* aliases
