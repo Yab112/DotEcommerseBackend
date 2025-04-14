@@ -1,4 +1,5 @@
 import { Redis } from '@upstash/redis';
+import logger from '@/services/logger.service';
 import { env } from './env';
 
 export type RedisClient = Redis;
@@ -11,15 +12,14 @@ export const getRedisClient = async (): Promise<RedisClient> => {
       url: env.REDIS_URL,
       token: env.REDIS_TOKEN,
     });
-    console.log('Upstash Redis client initialized');
+    logger.info('Upstash Redis client initialized');
     // Test connection
     try {
-      await client.set('test:key', 'testvalue', { ex: 10 });
-      const value = await client.get('test:key');
-      console.log(`Redis test: ${value}`);
-    } catch (err) {
-      console.error('Redis test failed:', err);
-      throw err;
+      await client.ping();
+      logger.info('Upstash Redis connection successful');
+    } catch (error) {
+      logger.error('Error connecting to Upstash Redis:', error);
+      throw new Error('Failed to connect to Upstash Redis');
     }
   }
   return client;

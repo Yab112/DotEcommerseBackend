@@ -1,10 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
+
+import logger from '@/services/logger.service';
 import { verifyAccessToken } from '../utils/jwt';
 
 // Extend the Request interface to include the user property
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies?.accessToken;
+  const token = (req.cookies as { accessToken?: string })?.accessToken;
 
   if (!token) {
     res.status(401).json({ error: 'No access token provided. Please log in.' });
@@ -16,7 +18,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     req.user = payload;
     next(); // Proceed to the next middleware
   } catch (error) {
+    logger.error('Authentication error:', error);
     res.status(401).json({ error: 'Invalid or expired access token' });
-    return;
   }
 };

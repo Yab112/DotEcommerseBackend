@@ -5,11 +5,11 @@ import { env } from './config/env';
 import app from './app/app';
 
 // Database connection
-connectDB().catch(err => {
+connectDB().catch((err) => {
   console.error('Fatal DB connection error:', err);
   process.exit(1);
 });
-startServer(app,env.PORT);
+startServer(app, env.PORT);
 
 // Swagger documentation
 swaggerDocs(app, env.PORT);

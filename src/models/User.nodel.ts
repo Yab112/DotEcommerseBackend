@@ -1,6 +1,7 @@
 // user.model.ts
-import { IUser } from '@/dto/user.dto';
 import { Schema, model } from 'mongoose';
+
+import type { IUser } from '@/dto/user.dto';
 
 const userSchema = new Schema<IUser>(
   {
@@ -14,13 +15,13 @@ const userSchema = new Schema<IUser>(
       required: true,
       trim: true,
     },
-    profilePicture: { 
+    profilePicture: {
       type: String,
-      default: '', 
+      default: '',
     },
-    bio: { 
+    bio: {
       type: String,
-      default: '', 
+      default: '',
     },
     email: {
       type: String,
@@ -31,13 +32,13 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: true, 
-      default: "", 
+      required: true,
+      default: '',
     },
     googleId: {
       type: String,
       unique: true,
-      sparse: true, 
+      sparse: true,
     },
     loginMethod: {
       type: String,
@@ -59,22 +60,26 @@ const userSchema = new Schema<IUser>(
       type: String,
       trim: true,
     },
-    orders: [{
-      type: String,
-      ref: 'Order',
-    }],
-    cart: [{
-      productId: {
+    orders: [
+      {
         type: String,
-        ref: 'Product',
-        required: true,
+        ref: 'Order',
       },
-      quantity: {
-        type: Number,
-        required: true,
-        min: 1,
+    ],
+    cart: [
+      {
+        productId: {
+          type: String,
+          ref: 'Product',
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
       },
-    }],
+    ],
     isAdmin: {
       type: Boolean,
       default: false,
@@ -82,12 +87,12 @@ const userSchema = new Schema<IUser>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 userSchema.pre('save', function (next) {
   if (this.loginMethod === 'google' && !this.password) {
-    this.password = "";
+    this.password = '';
   } else if (!this.password && this.loginMethod !== 'google') {
     this.invalidate('password', 'Password is required for non-Google users');
   }

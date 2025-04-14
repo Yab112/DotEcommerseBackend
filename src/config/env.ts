@@ -1,8 +1,9 @@
-//config/env.ts
+// config/env.ts
+import path from 'path';
+
 import { cleanEnv, str, num, url } from 'envalid';
 import dotenv from 'dotenv';
-import path from 'path';
-import { number } from 'joi';
+import logger from '@/services/logger.service';
 
 // 1. Load .env file
 const envPath = path.join(__dirname, '../../.env');
@@ -28,17 +29,16 @@ export const env = cleanEnv(process.env, {
   JWT_REFRESH_SECRET: str({ default: 'your_refresh_secret' }),
   JWT_REFRESH_EXPIRES_IN: str({ default: '30d' }),
 
-  //email
+  // email
   EMAIL_USER: str(),
   EMAIL_PASS: str(),
-  EMAIL_FROM:str(),
+  EMAIL_FROM: str(),
 
-
-  //google 
+  // google
   GOOGLE_CLIENT_ID: str(),
   GOOGLE_CLIENT_SECRET: str(),
   GOOGLE_CALLBACK_URL: str({ default: 'http://localhost:5000/auth/google/callback' }),
-  //otp
+  // otp
   OTP_EXPIRES_IN: num({ default: 600 }),
 
   // Production-only variables
@@ -65,6 +65,6 @@ if (env.NODE_ENV === 'production') {
 } else {
   // Development warnings
   if (env.JWT_SECRET === '12345678gyhujiokj$RDFTGY&B*NUIMOK<PL@fnuhebvsjfgvskeurh$#%678') {
-    console.warn('⚠️  Using default JWT secret in development - change this in production!');
+    logger.warn('⚠️  Using default JWT secret in development - change this in production!');
   }
 }

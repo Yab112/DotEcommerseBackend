@@ -1,9 +1,9 @@
-// src/services/otp.service.ts
 import { getRedisClient } from '@/config/redis';
-import { sendOtpEmail } from './email.service';
 import { env } from '@/config/env';
 
-const OTP_EXPIRES_IN = env.OTP_EXPIRES_IN || 6000; 
+import { sendOtpEmail } from './email.service';
+
+const OTP_EXPIRES_IN = env.OTP_EXPIRES_IN || 6000;
 
 export const generateAndSendOtp = async (email: string): Promise<void> => {
   const normalizedEmail = email.toLowerCase().trim();
@@ -28,7 +28,7 @@ export const verifyOtpCode = async (email: string, otp: string): Promise<boolean
   const client = await getRedisClient();
   const storedOtp = await client.get(`otp:${email}`);
   if (storedOtp?.toString() !== otp?.toString()) {
-    console.log(`OTP mismatch: storedOtp=${storedOtp}, providedOtp=${otp}`);
+    console.log(`OTP mismatch: storedOtp=${storedOtp as string}, providedOtp=${otp}`);
     return false;
   }
   await client.del(`otp:${email}`);
