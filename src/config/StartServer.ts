@@ -1,9 +1,11 @@
-import { Application } from 'express';
-import {env} from "./env"
+import type { Application } from 'express';
 
-console.log("environment variable loading .........",env.PORT)
+import logger from '@/services/logger.service';
+import { env } from './env';
+
+logger.info('Environment variable loading .........', env.PORT);
 export const startServer = (app: Application, port: number) => {
   app.listen(env.PORT, () => {
-    console.log(`Server running on port ${port}`);
+    logger.info(`Server running on port ${port}`);
   });
 };

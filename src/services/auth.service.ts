@@ -1,9 +1,11 @@
 import { getRedisClient } from '@/config/redis';
 import User from '@/models/User.nodel';
-import { generateAndSendOtp, verifyOtpCode } from './otp.service';
 import { hashPassword, comparePassword } from '@/utils/passwordUtils';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/utils/jwt';
-import { IUser } from '@/dto/user.dto';
+import type { IUser } from '@/dto/user.dto';
+
+import { generateAndSendOtp, verifyOtpCode } from './otp.service';
+import logger from './logger.service';
 
 export class AuthService {
   async registerUser(
@@ -11,7 +13,7 @@ export class AuthService {
     lastName: string,
     email: string,
     password: string,
-    phone?: string
+    phone?: string,
   ): Promise<IUser> {
     const existing = await User.findOne({ email });
     if (existing) throw new Error('User already exists');
@@ -28,7 +30,8 @@ export class AuthService {
     try {
       await generateAndSendOtp(email);
     } catch (error) {
-      await User.deleteOne({ _id: user._id }); 
+      logger.error('Failed to send OTP', { error });
+      await User.deleteOne({ _id: user._id });
       throw new Error('Failed to send OTP');
     }
     return user;
@@ -37,24 +40,23 @@ export class AuthService {
   async verifyOtp(email: string, otp: string): Promise<IUser> {
     const isValid = await verifyOtpCode(email, otp);
     if (!isValid) throw new Error('Invalid or expired OTP');
-    const user = await User.findOneAndUpdate(
-      { email },
-      { isVerified: true },
-      { new: true }
-    );
+    const user = await User.findOneAndUpdate({ email }, { isVerified: true }, { new: true });
     if (!user) throw new Error('User not found');
     return user;
   }
 
-  async login(email: string, password: string): Promise<{
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{
     accessToken: string;
     refreshToken: string;
     user: IUser;
   }> {
     const user = await User.findOne({ email });
     if (!user) throw new Error('User not found');
-    if (user.password === "") {
-      throw new Error( 'This account uses Google login. Please use /auth/google.')
+    if (user.password === '') {
+      throw new Error('This account uses Google login. Please use /auth/google.');
     }
     if (!user.isVerified) throw new Error('User not verified');
     const isMatch = await comparePassword(password, user.password);
@@ -64,7 +66,7 @@ export class AuthService {
       email: user.email,
       isAdmin: user.isAdmin ?? false,
     });
-    
+
     const refreshToken = generateRefreshToken({
       id: user._id.toString(),
       email: user.email,
@@ -75,21 +77,20 @@ export class AuthService {
     await client.setex(
       `refresh_token:${user._id}`,
       7 * 24 * 60 * 60, // 7 days
-      refreshToken
+      refreshToken,
     );
     return { accessToken, refreshToken, user };
   }
-
 
   async resendOtp(email: string): Promise<void> {
     const user = await User.findOne({ email });
     if (!user) throw new Error('User not found');
     if (user.isVerified) throw new Error('User already verified');
     try {
-        await generateAndSendOtp(email);
-        }
-    catch (error) {
-        throw new Error('Failed to send OTP');
+      await generateAndSendOtp(email);
+    } catch (error) {
+      logger.error('Failed to send OTP', { error });
+      throw new Error('Failed to send OTP');
     }
   }
 
@@ -98,26 +99,25 @@ export class AuthService {
     if (!user) throw new Error('User not found');
     if (!user.isVerified) throw new Error('User not verified');
     try {
-        await generateAndSendOtp(email);
-        }
-    catch (error) {
-        throw new Error('Failed to send OTP');
+      await generateAndSendOtp(email);
+    } catch (error) {
+      logger.error('Failed to send OTP', { error });
+      throw new Error('Failed to send OTP');
     }
   }
 
-    async verifyForgotPasswordOtp(email: string, otp: string, newPassword: string): Promise<IUser> {
-        const isValid = await verifyOtpCode(email, otp);
-        if (!isValid) throw new Error('Invalid or expired OTP');
-        const newPasswordhashed = await hashPassword(newPassword); 
-        const user = await User.findOneAndUpdate(
-            { email },
-            { password: newPasswordhashed },
-            { new: true }
-        );
-        if (!user) throw new Error('User not found');
-        return user;
-    }
-
+  async verifyForgotPasswordOtp(email: string, otp: string, newPassword: string): Promise<IUser> {
+    const isValid = await verifyOtpCode(email, otp);
+    if (!isValid) throw new Error('Invalid or expired OTP');
+    const newPasswordhashed = await hashPassword(newPassword);
+    const user = await User.findOneAndUpdate(
+      { email },
+      { password: newPasswordhashed },
+      { new: true },
+    );
+    if (!user) throw new Error('User not found');
+    return user;
+  }
 
   async resetPassword(email: string, otp: string, newPassword: string): Promise<void> {
     const isValid = await verifyOtpCode(email, otp);
@@ -126,7 +126,7 @@ export class AuthService {
     const user = await User.findOneAndUpdate(
       { email },
       { password: hashedPassword },
-      { new: true }
+      { new: true },
     );
     if (!user) throw new Error('User not found');
   }

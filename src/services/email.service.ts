@@ -1,6 +1,7 @@
 // src/services/email.service.ts
-import { transporter } from '../config/nodemailer';
 import { env } from '@/config/env';
+
+import { transporter } from '../config/nodemailer';
 
 export const sendOtpEmail = async (email: string, otp: string) => {
   const mailOptions = {

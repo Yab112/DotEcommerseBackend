@@ -1,8 +1,9 @@
 import { Router } from 'express';
+
 import { authRateLimiter } from '@/middleware/rateLimiter';
 import { validate } from '@/middleware/validate';
 import {
-    forgotPassword,
+  forgotPassword,
   forgotPasswordshema,
   loginSchema,
   otpSchema,
@@ -16,73 +17,63 @@ const router = Router();
 
 (async () => {
   const authRateLimiterMiddleware = await authRateLimiter();
-  
+
   router.post(
     '/register',
     authRateLimiterMiddleware,
     validate(registerSchema),
-    AuthController.register
+    AuthController.register,
   );
-  
-  router.post(
-    '/login',
-    authRateLimiterMiddleware,
-    validate(loginSchema),
-    AuthController.login
-  );
+
+  router.post('/login', authRateLimiterMiddleware, validate(loginSchema), AuthController.login);
 
   router.post(
     '/verify-otp',
     authRateLimiterMiddleware,
     validate(otpSchema),
-    AuthController.verifyOtp
+    AuthController.verifyOtp,
   );
 
   router.post(
     '/resend-otp',
     authRateLimiterMiddleware,
     validate(resendotpSchema),
-    AuthController.resendOtp
+    AuthController.resendOtp,
   );
-  
-  
+
   router.post(
     '/reset-password-request',
     authRateLimiterMiddleware,
     validate(otpSchema), // Reuses otpSchema for email
-    AuthController.requestPasswordReset
+    AuthController.requestPasswordReset,
   );
-  
+
   router.post(
     '/reset-password',
     authRateLimiterMiddleware,
     validate(resetPasswordSchema),
-    AuthController.verifyresetPassword
+    AuthController.verifyResetPassword,
   );
 
   router.post(
     '/forgot-Password-request',
     authRateLimiterMiddleware,
-    validate(forgotPassword), 
-    AuthController.forgotPassword
+    validate(forgotPassword),
+    AuthController.forgotPassword,
   );
 
   router.post(
     '/forgot-password',
     authRateLimiterMiddleware,
     validate(forgotPasswordshema),
-    AuthController.verifyForgotPasswordOtp
-  )
-  
-  router.post(
-    '/refresh-token',
-    authRateLimiterMiddleware,
-    AuthController.refreshToken
+    AuthController.verifyForgotPasswordOtp,
   );
-  
+
+  router.post('/refresh-token', authRateLimiterMiddleware, AuthController.refreshToken);
+
   router.post('/logout', AuthController.logout);
 
-  //google auth
+  // google auth
   // router.get('/auth/google', AuthController.googleAuth);
   // router.get(
   //   '/auth/google/callback',

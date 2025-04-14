@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/server.ts",
-   "type": "module",
   "scripts": {
-    "dev": "nodemon -r tsconfig-paths/register -r dotenv/config src/server.ts",
+    "dev": "nodemon -r tsconfig-paths/register -r dotenv/config --exec ts-node src/server.ts",
     "start": "node -r tsconfig-paths/register -r dotenv/config dist/server.js",
     "build": "tsc",
     "lint": "eslint . --ext .ts",
@@ -43,7 +42,8 @@
     "passport-google-oauth20": "^2.0.0",
     "rate-limit-redis": "^4.2.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",

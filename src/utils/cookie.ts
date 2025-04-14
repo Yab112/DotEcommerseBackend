@@ -1,5 +1,5 @@
 // src/utils/cookie.ts
-import { Response } from 'express';
+import type { Response } from 'express';
 
 export const setAccessTokenCookie = (res: Response, token: string) => {
   res.cookie('accessToken', token, {
@@ -18,7 +18,6 @@ export const setRefreshTokenCookie = (res: Response, token: string) => {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
 };
-
 
 export const clearRefreshTokenCookie = (res: Response) => {
   res.clearCookie('refreshToken', {

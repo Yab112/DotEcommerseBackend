@@ -1,6 +1,7 @@
 // src/config/passport.ts
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+
 import User from '@/models/User.nodel';
 
 export const setupPassport = () => {
@@ -44,7 +45,7 @@ export const setupPassport = () => {
             firstName: profile.name?.givenName || 'Unknown',
             lastName: profile.name?.familyName || 'User',
             email: profile.emails?.[0].value,
-            password: "",
+            password: '',
             googleId: profile.id,
             loginMethod: 'google',
             isVerified: true,
@@ -54,7 +55,7 @@ export const setupPassport = () => {
         } catch (error) {
           return done(error);
         }
-      }
-    )
+      },
+    ),
   );
 };

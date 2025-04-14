@@ -1,6 +1,6 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { Express } from 'express';
+import type { Express } from 'express';
 
 const options = {
   definition: {
@@ -11,7 +11,7 @@ const options = {
       description: 'API documentation for DotEcommerseBackend',
     },
   },
-  apis: ['./src/routes/*.ts'], 
+  apis: ['./src/routes/*.ts'],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

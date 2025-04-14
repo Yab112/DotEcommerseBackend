@@ -1,6 +1,7 @@
 // product.model.ts
-import { IProduct } from '@/dto/product.dto';
-import { Document, Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+
+import type { IProduct } from '@/dto/product.dto';
 
 const productSchema = new Schema<IProduct>(
   {
@@ -31,7 +32,7 @@ const productSchema = new Schema<IProduct>(
       type: Number,
       min: 0,
       validate: {
-        validator: function (this: IProduct, value: number) {
+        validator(this: IProduct, value: number) {
           return !value || value > this.price;
         },
         message: 'Compare at price must be greater than the regular price',
@@ -56,24 +57,32 @@ const productSchema = new Schema<IProduct>(
       type: String,
       trim: true,
     },
-    images: [{
-      type: String,
-      required: true,
-    }],
-    variants: [{
-      name: { type: String, required: true },
-      options: [{ type: String, required: true }],
-    }],
-    specifications: [{
-      key: { type: String, required: true },
-      value: { type: String, required: true },
-    }],
-    reviews: [{
-      user: { type: String, ref: 'User', required: true },
-      rating: { type: Number, required: true, min: 1, max: 5 },
-      comment: { type: String },
-      createdAt: { type: Date, default: Date.now },
-    }],
+    images: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
+    variants: [
+      {
+        name: { type: String, required: true },
+        options: [{ type: String, required: true }],
+      },
+    ],
+    specifications: [
+      {
+        key: { type: String, required: true },
+        value: { type: String, required: true },
+      },
+    ],
+    reviews: [
+      {
+        user: { type: String, ref: 'User', required: true },
+        rating: { type: Number, required: true, min: 1, max: 5 },
+        comment: { type: String },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
     averageRating: {
       type: Number,
       min: 0,
@@ -85,10 +94,12 @@ const productSchema = new Schema<IProduct>(
       enum: ['active', 'draft', 'out_of_stock', 'discontinued'],
       default: 'draft',
     },
-    tags: [{
-      type: String,
-      trim: true,
-    }],
+    tags: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
     weight: {
       type: Number,
       min: 0,
@@ -105,7 +116,7 @@ const productSchema = new Schema<IProduct>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Pre-save hook to calculate average rating

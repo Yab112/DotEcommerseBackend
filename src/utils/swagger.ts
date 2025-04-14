@@ -1,8 +1,9 @@
-import swaggerJsdoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { Express, Request, Response } from 'express';
+
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import type { Express, Request, Response } from 'express';
 
 // Type definitions for Swagger components
 interface SwaggerContact {
@@ -48,7 +49,8 @@ interface SwaggerComponents {
 
 // Load package.json with type safety
 const packageJsonPath = path.join(__dirname, '../../package.json');
-const packageJson: { version: string } = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+const packageJsonContent = readFileSync(packageJsonPath, 'utf-8');
+const packageJson: { version: string } = JSON.parse(packageJsonContent) as { version: string };
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -71,22 +73,22 @@ const options: swaggerJsdoc.Options = {
       contact: {
         name: 'API Support',
         email: 'eshetieyabibal@gmail.com',
-        url: 'https://p2pmarketplace.com/support'
+        url: 'https://p2pmarketplace.com/support',
       },
       license: {
         name: 'MIT',
-        url: 'https://opensource.org/licenses/MIT'
-      }
+        url: 'https://opensource.org/licenses/MIT',
+      },
     } as SwaggerInfo,
     servers: [
       {
         url: 'http://localhost:5000/api/v1',
-        description: 'Development server'
+        description: 'Development server',
       },
       {
         url: 'https://api.p2pmarketplace.com/v1',
-        description: 'Production server'
-      }
+        description: 'Production server',
+      },
     ] as SwaggerServer[],
     components: {
       securitySchemes: {
@@ -94,8 +96,8 @@ const options: swaggerJsdoc.Options = {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          description: 'JWT Authorization header using the Bearer scheme'
-        }
+          description: 'JWT Authorization header using the Bearer scheme',
+        },
       } as { bearerAuth: SwaggerSecurityScheme },
       schemas: {
         User: {
@@ -103,47 +105,45 @@ const options: swaggerJsdoc.Options = {
           properties: {
             _id: {
               type: 'string',
-              example: '507f1f77bcf86cd799439011'
+              example: '507f1f77bcf86cd799439011',
             },
             name: {
               type: 'string',
-              example: 'John Doe'
+              example: 'John Doe',
             },
             email: {
               type: 'string',
-              example: 'john@example.com'
+              example: 'john@example.com',
             },
             role: {
               type: 'string',
               enum: ['buyer', 'seller', 'admin'],
-              example: 'buyer'
-            }
-          }
+              example: 'buyer',
+            },
+          },
         },
         Error: {
           type: 'object',
           properties: {
             status: {
               type: 'string',
-              example: 'error'
+              example: 'error',
             },
             message: {
               type: 'string',
-              example: 'Error description'
-            }
-          }
-        }
-      }
+              example: 'Error description',
+            },
+          },
+        },
+      },
     } as SwaggerComponents,
-    security: [{
-      bearerAuth: []
-    }]
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
-  apis: [
-    './src/routes/**/*.ts',
-    './src/models/*.ts',
-    './src/controllers/*.ts'
-  ]
+  apis: ['./src/routes/**/*.ts', './src/models/*.ts', './src/controllers/*.ts'],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
@@ -151,7 +151,7 @@ const swaggerSpec = swaggerJsdoc(options);
 export const swaggerDocs = (app: Express, port: number): void => {
   // Swagger UI
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  
+
   // API Docs in JSON format
   app.get('/api-docs.json', (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'application/json');
