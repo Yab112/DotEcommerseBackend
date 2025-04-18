@@ -82,11 +82,11 @@ const options: swaggerJsdoc.Options = {
     } as SwaggerInfo,
     servers: [
       {
-        url: 'http://localhost:5000/api/v1',
+        url: 'http://localhost:5000',
         description: 'Development server',
       },
       {
-        url: 'https://api.p2pmarketplace.com/v1',
+        url: 'https://api.p2pmarketplace.com',
         description: 'Production server',
       },
     ] as SwaggerServer[],

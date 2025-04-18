@@ -10,8 +10,18 @@ const options = {
       version: '1.0.0',
       description: 'API documentation for DotEcommerseBackend',
     },
+    servers: [
+      {
+        url: 'http://localhost:5000/api',
+        description: 'Development server',
+      },
+      {
+        url: 'https://api.dotecommerse.com/api', // Corrected production server URL
+        description: 'Production server',
+      },
+    ],
   },
-  apis: ['./src/routes/*.ts'],
+  apis: ['./src/routes/*.ts'], // Ensure this path matches your route files
 };
 
 const swaggerSpec = swaggerJsdoc(options);
