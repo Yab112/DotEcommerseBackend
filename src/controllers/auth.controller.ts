@@ -41,7 +41,10 @@ class AuthController {
       const result: AuthResponse = await authService.login(email, password);
       setAccessTokenCookie(res, result.accessToken!);
       setRefreshTokenCookie(res, result.refreshToken!);
-      logger.info('User logged in', { email });
+      logger.info('User logged in, cookies set', {
+        email,
+        accessToken: result.accessToken,
+      });
       res.status(200).json({ message: 'Login successful', user: result.user });
     } catch (error: unknown) {
       const err = error as Error;
@@ -176,7 +179,10 @@ class AuthController {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     passport.authenticate('google', { session: false })(req, res, async () => {
       try {
-        const user = req.user as IUser;
+        const user = req.user as Partial<IUser>;
+        if (!user || !user._id || !user.firstName || !user.lastName || !user.email) {
+          throw new Error('Invalid user data from Google authentication');
+        }
         const accessToken = generateAccessToken({
           id: user._id,
           email: user.email,
