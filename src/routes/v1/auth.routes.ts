@@ -9,7 +9,6 @@ import {
   otpSchema,
   registerSchema,
   resendotpSchema,
-  resetPasswordSchema,
 } from '@/validators/auth.validation';
 import AuthController from '@/controllers/auth.controller';
 
@@ -273,76 +272,6 @@ const router = Router();
 
   /**
    * @swagger
-   * /api/auth/reset-password-request:
-   *   post:
-   *     summary: Request a password reset OTP
-   *     description: Sends an OTP to the user's email for password reset.
-   *     tags: [Authentication]
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/ForgotPasswordDTO'
-   *           example:
-   *             email: "eshetieyabibal@gmail.com"
-   *     responses:
-   *       200:
-   *         description: Password reset OTP sent successfully.
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 message:
-   *                   type: string
-   *                   example: "Password reset OTP sent"
-   *       400:
-   *         description: Failed to send OTP. Possible reasons include user not found or unverified user.
-   */
-  router.post(
-    '/reset-password-request',
-    authRateLimiterMiddleware,
-    validate(otpSchema), // Reuses otpSchema for email
-    AuthController.requestPasswordReset,
-  );
-
-  /**
-   * @swagger
-   * /api/auth/reset-password:
-   *   post:
-   *     summary: Reset the user's password using OTP
-   *     description: Resets the user's password after verifying the OTP.
-   *     tags: [Authentication]
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/ResetPasswordDTO'
-   *     responses:
-   *       200:
-   *         description: Password reset successfully.
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 message:
-   *                   type: string
-   *                   example: "Password reset successfully"
-   *       400:
-   *         description: Invalid or expired OTP.
-   */
-  router.post(
-    '/reset-password',
-    authRateLimiterMiddleware,
-    validate(resetPasswordSchema),
-    AuthController.verifyResetPassword,
-  );
-
-  /**
-   * @swagger
    * /api/auth/forgot-password-request:
    *   post:
    *     summary: Request OTP for forgotten password
@@ -370,7 +299,7 @@ const router = Router();
    * @swagger
    * /api/auth/forgot-password:
    *   post:
-   *     summary: Verify OTP and reset forgotten password
+   *     summary: reset forgotten password
    *     tags: [Authentication]
    *     requestBody:
    *       required: true
@@ -382,13 +311,13 @@ const router = Router();
    *       200:
    *         description: Password reset successfully
    *       400:
-   *         description: Invalid or expired OTP
+   *         description: Failed to reset password
    */
   router.post(
     '/forgot-password',
     authRateLimiterMiddleware,
     validate(forgotPasswordshema),
-    AuthController.verifyForgotPasswordOtp,
+    AuthController.verifyForgotPassword,
   );
 
   /**

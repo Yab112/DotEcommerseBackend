@@ -92,13 +92,13 @@ class AuthController {
     }
   }
 
-  async verifyForgotPasswordOtp(
+  async verifyForgotPassword(
     req: Request<unknown, unknown, VerifyForgotPasswordDTO>,
     res: Response,
   ) {
     try {
-      const { email, otp, newPassword } = req.body;
-      const user = await authService.verifyForgotPasswordOtp(email, otp, newPassword);
+      const { email, newPassword } = req.body;
+      const user = await authService.verifyForgotPasswordOtp(email, newPassword);
       logger.info('Forgot password OTP verified', { email });
       res.status(200).json({ message: 'OTP verified', user });
     } catch (error: unknown) {
@@ -120,33 +120,6 @@ class AuthController {
       const err = error as Error;
       logger.error('Token refresh failed', { error: err.message });
       res.status(401).json({ message: err.message });
-    }
-  }
-
-  async requestPasswordReset(req: Request<unknown, unknown, ForgotPasswordDTO>, res: Response) {
-    try {
-      const { email } = req.body;
-      await authService.forgotPassword(email);
-      logger.info('Password reset OTP sent', { email });
-      res.status(200).json({ message: 'Password reset OTP sent' });
-    } catch (error: unknown) {
-      const err = error as Error;
-      logger.error('Password reset request failed', { error: err.message });
-      res.status(400).json({ message: err.message });
-    }
-  }
-
-  async verifyResetPassword(req: Request<unknown, unknown, ResetPasswordDTO>, res: Response) {
-    try {
-      const { email, otp, newPassword } = req.body;
-      const hashedPassword = await hashPassword(newPassword);
-      await authService.resetPassword(email, otp, hashedPassword);
-      logger.info('Password reset successful', { email });
-      res.status(200).json({ message: 'Password reset successfully' });
-    } catch (error: unknown) {
-      const err = error as Error;
-      logger.error('Password reset failed', { error: err.message });
-      res.status(400).json({ message: err.message });
     }
   }
 

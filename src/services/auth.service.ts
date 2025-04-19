@@ -106,9 +106,7 @@ export class AuthService {
     }
   }
 
-  async verifyForgotPasswordOtp(email: string, otp: string, newPassword: string): Promise<IUser> {
-    const isValid = await verifyOtpCode(email, otp);
-    if (!isValid) throw new Error('Invalid or expired OTP');
+  async verifyForgotPasswordOtp(email: string, newPassword: string): Promise<IUser> {
     const newPasswordhashed = await hashPassword(newPassword);
     const user = await User.findOneAndUpdate(
       { email },
@@ -117,18 +115,6 @@ export class AuthService {
     );
     if (!user) throw new Error('User not found');
     return user;
-  }
-
-  async resetPassword(email: string, otp: string, newPassword: string): Promise<void> {
-    const isValid = await verifyOtpCode(email, otp);
-    if (!isValid) throw new Error('Invalid or expired OTP');
-    const hashedPassword = await hashPassword(newPassword);
-    const user = await User.findOneAndUpdate(
-      { email },
-      { password: hashedPassword },
-      { new: true },
-    );
-    if (!user) throw new Error('User not found');
   }
 
   async refreshAccessToken(refreshToken: string): Promise<string> {

@@ -48,7 +48,6 @@ export interface ForgotPasswordDTO {
 
 export interface VerifyForgotPasswordDTO {
   email: string;
-  otp: string;
   newPassword: string;
 }
 
