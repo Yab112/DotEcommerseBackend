@@ -86,7 +86,7 @@ const options: swaggerJsdoc.Options = {
         description: 'Development server',
       },
       {
-        url: 'https://api.p2pmarketplace.com',
+        url: 'https://dotecommersebackend.onrender.com',
         description: 'Production server',
       },
     ] as SwaggerServer[],
