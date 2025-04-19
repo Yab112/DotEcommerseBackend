@@ -1,9 +1,8 @@
 name: Deploy to Docker Hub and Render
 
 on:
-  push:
-    branches:
-      - master
+  pull_request:
+    branches: [master]
 
 jobs:
   build-and-push:
