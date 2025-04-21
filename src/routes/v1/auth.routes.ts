@@ -11,6 +11,7 @@ import {
   resendotpSchema,
 } from '@/validators/auth.validation';
 import AuthController from '@/controllers/auth.controller';
+import { controllerWrapper } from '@/utils/controllerWrapper';
 
 const router = Router();
 
@@ -170,7 +171,7 @@ const router = Router();
     '/register',
     authRateLimiterMiddleware,
     validate(registerSchema),
-    AuthController.register,
+    controllerWrapper(AuthController.register),
   );
 
   /**
@@ -196,7 +197,12 @@ const router = Router();
    *       401:
    *         description: Invalid credentials or unverified user.
    */
-  router.post('/login', authRateLimiterMiddleware, validate(loginSchema), AuthController.login);
+  router.post(
+    '/login',
+    authRateLimiterMiddleware,
+    validate(loginSchema),
+    controllerWrapper(AuthController.login),
+  );
 
   /**
    * @swagger
@@ -292,7 +298,7 @@ const router = Router();
     '/forgot-password-request',
     authRateLimiterMiddleware,
     validate(forgotPassword),
-    AuthController.forgotPassword,
+    controllerWrapper(AuthController.forgotPassword),
   );
 
   /**
@@ -317,7 +323,7 @@ const router = Router();
     '/forgot-password',
     authRateLimiterMiddleware,
     validate(forgotPasswordshema),
-    AuthController.verifyForgotPassword,
+    controllerWrapper(AuthController.verifyForgotPassword),
   );
 
   /**
@@ -341,7 +347,11 @@ const router = Router();
    *       401:
    *         description: Invalid or missing refresh token.
    */
-  router.post('/refresh-token', authRateLimiterMiddleware, AuthController.refreshToken);
+  router.post(
+    '/refresh-token',
+    authRateLimiterMiddleware,
+    controllerWrapper(AuthController.refreshToken),
+  );
 
   /**
    * @swagger

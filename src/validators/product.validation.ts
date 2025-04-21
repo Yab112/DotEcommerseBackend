@@ -1,0 +1,97 @@
+// src/validations/product.validation.ts
+import Joi from 'joi';
+
+// Common schemas
+const dimensionsSchema = Joi.object({
+  length: Joi.number().min(0).required(),
+  width: Joi.number().min(0).required(),
+  height: Joi.number().min(0).required(),
+});
+
+const variantSchema = Joi.object({
+  name: Joi.string().required(),
+  options: Joi.array().items(Joi.string().required()).required(),
+});
+
+const specificationSchema = Joi.object({
+  key: Joi.string().required(),
+  value: Joi.string().required(),
+});
+
+// 1. Create Product
+export const createProductSchema = Joi.object({
+  name: Joi.string().min(3).max(100).required(),
+  description: Joi.string().min(10).required(),
+  sku: Joi.string().required(),
+  price: Joi.number().min(0).required(),
+  compareAtPrice: Joi.number().min(0),
+  stock: Joi.number().min(0).required(),
+  category: Joi.string().required(),
+  subCategory: Joi.string().optional(),
+  brand: Joi.string().optional(),
+  images: Joi.array().items(Joi.string().uri()).min(1).required(),
+  variants: Joi.array().items(variantSchema).optional(),
+  specifications: Joi.array().items(specificationSchema).optional(),
+  tags: Joi.array().items(Joi.string()).optional(),
+  weight: Joi.number().min(0).optional(),
+  dimensions: dimensionsSchema.optional(),
+  isFeatured: Joi.boolean().optional(),
+});
+
+// 2. Update Product
+export const updateProductSchema = Joi.object({
+  name: Joi.string().min(3).max(100),
+  description: Joi.string().min(10),
+  sku: Joi.string(),
+  price: Joi.number().min(0),
+  compareAtPrice: Joi.number().min(0),
+  stock: Joi.number().min(0),
+  category: Joi.string(),
+  subCategory: Joi.string(),
+  brand: Joi.string(),
+  images: Joi.array().items(Joi.string().uri()).min(1),
+  variants: Joi.array().items(variantSchema),
+  specifications: Joi.array().items(specificationSchema),
+  tags: Joi.array().items(Joi.string()),
+  weight: Joi.number().min(0),
+  dimensions: dimensionsSchema,
+  isFeatured: Joi.boolean(),
+});
+
+// 3. Update Stock
+export const updateProductStockSchema = Joi.object({
+  stock: Joi.number().min(0).required(),
+});
+
+// 4. Add Review
+export const addReviewSchema = Joi.object({
+  rating: Joi.number().min(1).max(5).required(),
+  comment: Joi.string().allow('').optional(),
+  userId: Joi.string().required(),
+});
+
+// 5. Delete Review (if applicable)
+export const deleteReviewSchema = Joi.object({
+  reviewId: Joi.string().required(),
+});
+
+// 6. Add Variant (if managed independently)
+export const addVariantSchema = Joi.object({
+  productId: Joi.string().required(),
+  variant: variantSchema.required(),
+});
+
+// 7. Update Variant
+export const updateVariantSchema = Joi.object({
+  variantId: Joi.string().required(),
+  name: Joi.string().optional(),
+  options: Joi.array().items(Joi.string()).optional(),
+});
+
+// 8. Bulk Stock Update (Optional)
+export const bulkUpdateStockSchema = Joi.array().items(
+  Joi.object({
+    productId: Joi.string().required(),
+    stock: Joi.number().min(0).required(),
+  }),
+);
