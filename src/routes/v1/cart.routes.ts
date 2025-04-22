@@ -42,7 +42,7 @@ const CartRoute = Router();
     '/:itemId',
     authenticate,
     authRateLimiterMiddleware,
-    validate(removeCartItemSchema),
+    validate(removeCartItemSchema, 'params'),
     controllerWrapper(cartController.removeFromCart),
   );
 })();
