@@ -1,9 +1,9 @@
-import { getRedisClient } from '@/config/redis';
 import User from '@/models/User.nodel';
 import { hashPassword, comparePassword } from '@/utils/password.utils';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/utils/jwt.utils';
 import type { IUser } from '@/dto/user.dto';
 
+import { setRedisValue, getRedisValue, deleteRedisValue } from '@/utils/redis.utils';
 import { generateAndSendOtp, verifyOtpCode } from './otp.service';
 import logger from './logger.service';
 
@@ -73,11 +73,10 @@ export class AuthService {
     });
 
     // Store refresh token in Redis
-    const client = await getRedisClient();
-    await client.setex(
+    await setRedisValue(
       `refresh_token:${user._id}`,
-      7 * 24 * 60 * 60, // 7 days
       refreshToken,
+      7 * 24 * 60 * 60, // 7 days
     );
     return { accessToken, refreshToken, user };
   }
@@ -119,8 +118,7 @@ export class AuthService {
 
   async refreshAccessToken(refreshToken: string): Promise<string> {
     const payload = verifyRefreshToken(refreshToken) as { id: string; email: string };
-    const client = await getRedisClient();
-    const storedToken = await client.get(`refresh_token:${payload.id}`);
+    const storedToken = await getRedisValue<string>(`refresh_token:${payload.id}`);
     if (storedToken !== refreshToken) throw new Error('Invalid refresh token');
     const user = await User.findById(payload.id);
     if (!user) throw new Error('User not found');
@@ -132,8 +130,7 @@ export class AuthService {
   }
 
   async logout(userId: string): Promise<void> {
-    const client = await getRedisClient();
-    await client.del(`refresh_token:${userId}`);
+    await deleteRedisValue(`refresh_token:${userId}`);
   }
 }
 

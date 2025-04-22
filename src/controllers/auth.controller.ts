@@ -7,8 +7,8 @@ import {
   setAccessTokenCookie,
 } from '@/utils/cookie.utils';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/utils/jwt.utils';
-import { getRedisClient } from '@/config/redis';
 import logger from '@/services/logger.service';
+import { setRedisValue } from '@/utils/redis.utils';
 import {
   RegisterDTO,
   LoginDTO,
@@ -90,7 +90,7 @@ class AuthController {
     res.status(200).json({ message: 'Logged out successfully' });
   }
 
-  static googleAuth(req: Request, res: Response) {
+  async googleAuth(req: Request, res: Response) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     passport.authenticate('google', {
       scope: ['profile', 'email'],
@@ -98,36 +98,49 @@ class AuthController {
     })(req, res);
   }
 
-  static async googleAuthCallback(req: Request, res: Response) {
+  async googleAuthCallback(req: Request, res: Response) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     passport.authenticate('google', { session: false })(req, res, async () => {
-      const user = req.user as Partial<IUser>;
-      if (!user || !user._id || !user.firstName || !user.lastName || !user.email) {
-        throw new Error('Invalid user data from Google authentication');
-      }
-      const accessToken = generateAccessToken({
-        id: user._id,
-        email: user.email,
-        isAdmin: user.isAdmin ?? false,
-      });
-      const refreshToken = generateRefreshToken({
-        id: user._id || '',
-        email: user.email,
-      });
-      const client = await getRedisClient();
-      await client.setex(`refresh_token:${user._id}`, 7 * 24 * 60 * 60, refreshToken);
-      setAccessTokenCookie(res, accessToken);
-      setRefreshTokenCookie(res, refreshToken);
-      logger.info('Google authentication successful', { email: user.email });
-      res.json({
-        user: {
+      try {
+        const user = req.user as Partial<IUser>;
+        if (!user || !user._id || !user.firstName || !user.lastName || !user.email) {
+          logger.error('Invalid user data from Google authentication', { user });
+          throw new Error('Invalid user data from Google authentication');
+        }
+
+        const accessToken = generateAccessToken({
           id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
           email: user.email,
-          isAdmin: user.isAdmin,
-        },
-      });
+          isAdmin: user.isAdmin ?? false,
+        });
+
+        const refreshToken = generateRefreshToken({
+          id: user._id || '',
+          email: user.email,
+        });
+
+        // Store refresh token in Redis with 7-day expiration
+        const refreshTokenKey = `refresh_token:${user._id}`;
+        await setRedisValue(refreshTokenKey, refreshToken, 7 * 24 * 60 * 60);
+
+        setAccessTokenCookie(res, accessToken);
+        setRefreshTokenCookie(res, refreshToken);
+
+        logger.info('Google authentication successful', { email: user.email });
+
+        res.json({
+          user: {
+            id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            isAdmin: user.isAdmin,
+          },
+        });
+      } catch (error) {
+        logger.error('Error in Google authentication callback:', error);
+        res.status(500).json({ error: 'Failed to authenticate with Google' });
+      }
     });
   }
 }
