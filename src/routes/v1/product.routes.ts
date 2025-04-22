@@ -5,7 +5,7 @@ import { Router } from 'express';
 import { authRateLimiter } from '@/middleware/rateLimiter';
 import { authenticate } from '@/middleware/auth.middleware';
 
-import { controllerWrapper } from '@/utils/controllerWrapper';
+import { controllerWrapper } from '@/utils/controllerWrapper.utils';
 import { validate } from '@/middleware/validate';
 import {
   addReviewSchema,

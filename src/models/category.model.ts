@@ -1,12 +1,11 @@
-// category.model.ts
-import { Schema, model } from 'mongoose';
-
+import { Schema, model, Types } from 'mongoose';
 import type { ICategory } from '@/dto/category.dto';
 
 const categorySchema = new Schema<ICategory>(
   {
-    name: { type: String, required: true, unique: true, trim: true },
-    description: { type: String },
+    name: { type: String, required: true, unique: true },
+    description: String,
+    parent: { type: Types.ObjectId, ref: 'Category' },
   },
   { timestamps: true },
 );

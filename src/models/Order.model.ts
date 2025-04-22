@@ -1,32 +1,31 @@
-// order.model.ts
-import { Schema, model } from 'mongoose';
-
+import { Schema, model, Types } from 'mongoose';
 import type { IOrder } from '@/dto/order.dto';
 
 const orderSchema = new Schema<IOrder>(
   {
-    user: { type: String, ref: 'User', required: true },
-    items: [
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    products: [
       {
-        productId: { type: String, ref: 'Product', required: true },
-        quantity: { type: Number, required: true, min: 1 },
-        price: { type: Number, required: true, min: 0 },
+        product: { type: Types.ObjectId, ref: 'Product', required: true },
+        quantity: { type: Number, required: true },
+        price: { type: Number, required: true },
       },
     ],
-    total: { type: Number, required: true, min: 0 },
+    totalAmount: { type: Number, required: true },
     status: {
       type: String,
       enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
       default: 'pending',
     },
-    // google map address
     shippingAddress: {
-      street: { type: String, required: true },
-      city: { type: String, required: true },
-      state: { type: String, required: false },
-      postalCode: { type: String, required: false },
-      country: { type: String, required: false },
+      street: String,
+      city: String,
+      state: String,
+      postalCode: String,
+      country: String,
     },
+    paymentMethod: { type: String, required: true },
+    paymentStatus: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' },
   },
   { timestamps: true },
 );

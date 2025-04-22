@@ -1,8 +1,7 @@
-import type { Document } from 'mongoose';
+import { Types } from 'mongoose';
 
-export interface ICategory extends Document {
+export interface ICategory {
   name: string;
   description?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  parent?: Types.ObjectId;
 }

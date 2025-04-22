@@ -5,8 +5,8 @@ import {
   setRefreshTokenCookie,
   clearRefreshTokenCookie,
   setAccessTokenCookie,
-} from '@/utils/cookie';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/utils/jwt';
+} from '@/utils/cookie.utils';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/utils/jwt.utils';
 import { getRedisClient } from '@/config/redis';
 import logger from '@/services/logger.service';
 import {
