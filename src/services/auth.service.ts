@@ -1,7 +1,7 @@
 import { getRedisClient } from '@/config/redis';
 import User from '@/models/User.nodel';
-import { hashPassword, comparePassword } from '@/utils/passwordUtils';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/utils/jwt';
+import { hashPassword, comparePassword } from '@/utils/password.utils';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/utils/jwt.utils';
 import type { IUser } from '@/dto/user.dto';
 
 import { generateAndSendOtp, verifyOtpCode } from './otp.service';

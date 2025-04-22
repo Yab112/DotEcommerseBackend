@@ -11,7 +11,7 @@ import {
   resendotpSchema,
 } from '@/validators/auth.validation';
 import AuthController from '@/controllers/auth.controller';
-import { controllerWrapper } from '@/utils/controllerWrapper';
+import { controllerWrapper } from '@/utils/controllerWrapper.utils';
 
 const router = Router();
 

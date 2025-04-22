@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import logger from '@/services/logger.service';
-import { verifyAccessToken } from '@/utils/jwt';
+import { verifyAccessToken } from '@/utils/jwt.utils';
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   const token = (req.cookies as { accessToken?: string })?.accessToken;

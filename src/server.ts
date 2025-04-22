@@ -1,6 +1,6 @@
 import { startServer } from './config/StartServer';
 import { connectDB } from './config/dbConfig';
-import { swaggerDocs } from './utils/swagger';
+import { swaggerDocs } from './utils/swagger.utils';
 import { env } from './config/env';
 import app from './app/app';
 
