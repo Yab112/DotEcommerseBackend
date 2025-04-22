@@ -3,6 +3,7 @@ import Cart from '@/models/cart.model';
 import { AddToCartDTO, UpdateCartItemDTO } from '@/dto/cart.dto';
 import { setRedisValue, getRedisValue } from '@/utils/redis.utils';
 import logger from '@/services/logger.service';
+import mongoose from 'mongoose';
 
 const CART_CACHE_EXPIRES_IN = 3600; // 1 hour
 
@@ -106,11 +107,18 @@ class CartService {
         throw new Error('Cart not found');
       }
 
+      logger.info(`Cart found for user ${userId}: ${JSON.stringify(cart.items)}`);
+
       const initialLength = cart.items.length;
-      cart.items = cart.items.filter((i) => (i._id ?? '').toString() !== itemId);
+
+      // Ensure itemId is compared correctly
+      cart.items = cart.items.filter((i) => {
+        return !(i._id instanceof mongoose.Types.ObjectId && i._id.equals(itemId));
+      });
 
       if (cart.items.length === initialLength) {
-        logger.info(`Item ${itemId} not found in cart for user ${userId}`);
+        logger.error(`Item with ID ${itemId} not found in cart for user ${userId}`);
+        logger.info(`Current cart items: ${JSON.stringify(cart.items)}`);
         throw new Error('Item not found in cart');
       }
 
@@ -120,7 +128,7 @@ class CartService {
       await setRedisValue(cacheKey, updatedCart, CART_CACHE_EXPIRES_IN);
       return updatedCart;
     } catch (error) {
-      logger.error(`Error removing item from cart for user ${userId}:`, error);
+      logger.error(`Error removing item with ID ${itemId} from cart for user ${userId}:`, error);
       throw new Error('Failed to remove item from cart');
     }
   }
