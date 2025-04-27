@@ -62,5 +62,11 @@ const ProductRoute = Router();
     validate(updateProductStockSchema),
     controllerWrapper(ProductController.updateProductStock),
   );
+  ProductRoute.get(
+    '/:id/stock',
+    authRateLimiterMiddleware,
+    authenticate,
+    controllerWrapper(ProductController.getProductStock),
+  );
 })();
 export default ProductRoute;

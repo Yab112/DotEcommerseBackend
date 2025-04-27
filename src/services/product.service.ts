@@ -2,7 +2,8 @@ import type { FilterQuery, UpdateQuery } from 'mongoose';
 
 import type { IProduct } from '@/dto/product.dto';
 
-import Product from '../models/product.model';
+import Product from '@/models/product.model';
+import Inventory from '@/models/inventory.model'; // Import the new Inventory model
 
 export class ProductService {
   /**
@@ -109,6 +110,11 @@ export class ProductService {
       return null;
     }
 
+    // Ensure `reviews` is initialized
+    if (!product.reviews) {
+      product.reviews = [];
+    }
+
     // Check if user already reviewed this product
     const existingReviewIndex = product.reviews.findIndex((review) => review.user === userId);
 
@@ -133,23 +139,45 @@ export class ProductService {
   /**
    * Update product stock
    */
-  async updateProductStock(id: string, quantity: number): Promise<IProduct | null> {
-    const product = await Product.findById(id);
+  async updateProductStock(
+    productId: string,
+    variantId: string,
+    stockChange: number,
+  ): Promise<IProduct | null> {
+    const product = await Product.findById(productId);
 
     if (!product) {
       return null;
     }
 
-    product.stock += quantity;
-
-    // Update status if needed
-    if (product.stock <= 0) {
-      product.status = 'out_of_stock';
-    } else if (product.status === 'out_of_stock') {
-      product.status = 'active';
+    // Update stock in the Inventory model
+    const inventory = await Inventory.findOne({ product: productId, variant: variantId });
+    if (!inventory) {
+      throw new Error('Inventory record not found for the specified product and variant');
     }
 
+    inventory.stock = Math.max(0, inventory.stock + stockChange);
+    await inventory.save();
+
+    // Update product status based on total stock in Inventory
+    const totalStock = await Inventory.aggregate<{ totalStock: number }>([
+      { $match: { product: productId } },
+      { $group: { _id: null, totalStock: { $sum: '$stock' } } },
+    ]);
+
+    product.status = totalStock[0]?.totalStock > 0 ? 'active' : 'discontinued';
     return product.save();
+  }
+
+  /**
+   * Get product stock
+   */
+  async getProductStock(productId: string, variantId: string): Promise<number> {
+    const inventory = await Inventory.findOne({ product: productId, variant: variantId });
+    if (!inventory) {
+      throw new Error('Inventory record not found for the specified product and variant');
+    }
+    return inventory.stock;
   }
 
   /**

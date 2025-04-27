@@ -1,39 +1,41 @@
-import type { Document } from 'mongoose';
+// dto/product.dto.ts
+import { Document } from 'mongoose';
 
 export interface IProduct extends Document {
   name: string;
   description: string;
-  sku: string; // Stock Keeping Unit
-  price: number;
-  compareAtPrice?: number; // For showing discounts
-  stock: number;
+  type: string;
+  sku?: string;
   category: string;
   subCategory?: string;
   brand?: string;
-  images: string[];
   variants: {
-    name: string; // e.g., "Size" or "Color"
-    options: string[]; // e.g., ["S", "M", "L"] or ["Red", "Blue"]
+    name: string; // e.g., "Size", "Color"
+    options: {
+      value: string; // e.g., "Small", "Red"
+      price: number;
+      images: string[];
+    }[];
   }[];
-  specifications: {
+  specifications?: {
     key: string;
     value: string;
   }[];
-  reviews: {
+  reviews?: {
     user: string;
     rating: number;
     comment?: string;
     createdAt: Date;
   }[];
-  averageRating: number;
-  status: 'active' | 'draft' | 'out_of_stock' | 'discontinued';
-  tags: string[];
-  weight?: number; // For shipping calculations
+  averageRating?: number;
+  status: 'active' | 'draft' | 'discontinued';
+  tags?: string[];
+  weight?: number;
   dimensions?: {
     length: number;
     width: number;
     height: number;
-  }; // For shipping
+  };
   isFeatured?: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -43,18 +45,17 @@ export interface ProductFilter {
   minPrice?: number;
   maxPrice?: number;
   category?: string;
-  status?: 'active' | 'draft' | 'out_of_stock' | 'discontinued';
+  subCategory?: string;
   brand?: string;
   isFeatured?: boolean;
+  status?: 'active' | 'draft' | 'out_of_stock' | 'discontinued';
   sort?: 'asc' | 'desc';
   page?: number;
   limit?: number;
-  search?: string; // For searching by name or description
-  tags?: string[]; // For filtering by tag
-  stock?: number; // For filtering by stock availability
-  sku?: string; // For filtering by SKU
-  subCategory?: string; // For filtering by subcategory
-  [key: string]: unknown; // For additional filters
+  search?: string;
+  tags?: string[];
+  sku?: string;
+  [key: string]: unknown;
   price?: {
     $gte?: number;
     $lte?: number;
