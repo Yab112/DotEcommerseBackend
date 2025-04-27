@@ -41,6 +41,9 @@ export const env = cleanEnv(process.env, {
   // otp
   OTP_EXPIRES_IN: num({ default: 600 }),
 
+  // Stripe
+  STRIPE_SECRET_KEY: str(),
+
   // Production-only variables
   // ...(process.env.NODE_ENV === 'production'
   //   ? {

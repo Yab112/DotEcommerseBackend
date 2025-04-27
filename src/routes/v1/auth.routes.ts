@@ -12,7 +12,6 @@ import {
 } from '@/validators/auth.validation';
 import AuthController from '@/controllers/auth.controller';
 import { controllerWrapper } from '@/utils/controllerWrapper.utils';
-import authController from '@/controllers/auth.controller';
 
 const router = Router();
 
@@ -378,8 +377,8 @@ const router = Router();
   router.post('/logout', AuthController.logout);
 
   // google auth
-  router.get('/auth/google', authController.googleAuth);
-  router.get('/auth/google/callback', authRateLimiterMiddleware, authController.googleAuthCallback);
+  router.get('/auth/google', AuthController.googleAuth);
+  router.get('/auth/google/callback', authRateLimiterMiddleware, AuthController.googleAuthCallback);
 })();
 
 export default router;

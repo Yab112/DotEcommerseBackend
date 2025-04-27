@@ -9,7 +9,7 @@ const paymentIntentSchema = new Schema<IPaymentIntent>(
     gateway: { type: String, enum: ['stripe', 'paypal'], required: true },
     status: { type: String, enum: ['pending', 'succeeded', 'failed'], default: 'pending' },
     amount: { type: Number, required: true },
-    gatewayResponse: { type: Object }, // Raw JSON response from Stripe/PayPal
+    gatewayResponse: { type: Object },
   },
   {
     timestamps: true,

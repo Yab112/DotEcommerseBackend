@@ -9,6 +9,7 @@ import ProductRoute from '@/routes/v1/product.routes';
 import ProfileRoute from '@/routes/v1/profile.routes';
 import cookieParser from 'cookie-parser';
 import CartRoute from '@/routes/v1/cart.routes';
+import wishlistrouter from '@/routes/v1/wishlist.routes';
 
 dotenv.config();
 
@@ -32,4 +33,5 @@ app.use('/health', healthRouter);
 app.use('/api/product', ProductRoute);
 app.use('/api/profile', ProfileRoute);
 app.use('/api/cart', CartRoute);
+app.use('/api/wishlist', wishlistrouter);
 export default app;

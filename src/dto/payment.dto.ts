@@ -4,5 +4,5 @@ export interface IPaymentIntent {
   gateway: 'stripe' | 'paypal';
   status: 'pending' | 'succeeded' | 'failed';
   amount: number;
-  gatewayResponse?: Record<string, any>;
+  gatewayResponse?: Record<string, unknown>;
 }

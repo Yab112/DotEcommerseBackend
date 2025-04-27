@@ -1,6 +1,5 @@
 // product.model.ts
 import { Schema, model } from 'mongoose';
-
 import type { IProduct } from '@/dto/product.dto';
 
 const productSchema = new Schema<IProduct>(
@@ -17,32 +16,16 @@ const productSchema = new Schema<IProduct>(
       required: true,
       minlength: 10,
     },
-    sku: {
+    type: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
-    price: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    compareAtPrice: {
-      type: Number,
-      min: 0,
-      validate: {
-        validator(this: IProduct, value: number) {
-          return !value || value > this.price;
-        },
-        message: 'Compare at price must be greater than the regular price',
-      },
-    },
-    stock: {
-      type: Number,
-      required: true,
-      min: 0,
-      default: 0,
+    sku: {
+      type: String,
+      trim: true,
+      unique: true,
+      sparse: true,
     },
     category: {
       type: String,
@@ -57,16 +40,17 @@ const productSchema = new Schema<IProduct>(
       type: String,
       trim: true,
     },
-    images: [
-      {
-        type: String,
-        required: true,
-      },
-    ],
     variants: [
       {
         name: { type: String, required: true },
-        options: [{ type: String, required: true }],
+        options: [
+          {
+            value: { type: String, required: true },
+            price: { type: Number, required: true, min: 0 },
+            stock: { type: Number, required: true, min: 0 },
+            images: [{ type: String, required: true }],
+          },
+        ],
       },
     ],
     specifications: [
@@ -91,15 +75,10 @@ const productSchema = new Schema<IProduct>(
     },
     status: {
       type: String,
-      enum: ['active', 'draft', 'out_of_stock', 'discontinued'],
+      enum: ['active', 'draft', 'discontinued'],
       default: 'draft',
     },
-    tags: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
+    tags: [{ type: String, trim: true }],
     weight: {
       type: Number,
       min: 0,
@@ -119,7 +98,6 @@ const productSchema = new Schema<IProduct>(
   },
 );
 
-// Pre-save hook to calculate average rating
 productSchema.pre('save', function (next) {
   if (this.reviews && this.reviews.length > 0) {
     const totalRating = this.reviews.reduce((sum, review) => sum + review.rating, 0);

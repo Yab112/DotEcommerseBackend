@@ -157,17 +157,32 @@ class ProductController {
   }
 
   async updateProductStock(req: Request, res: Response): Promise<void> {
-    const { quantity } = req.body as { quantity: number };
-    if (quantity === undefined) {
-      throw Object.assign(new Error('Quantity is required'), { status: 400 });
+    const { variantId, stockChange } = req.body as { variantId: string; stockChange: number };
+    if (!variantId || stockChange === undefined) {
+      throw Object.assign(new Error('Variant ID and stock change are required'), { status: 400 });
     }
-    const product = await productService.updateProductStock(req.params.id, Number(quantity));
+
+    const product = await productService.updateProductStock(req.params.id, variantId, stockChange);
     if (!product) {
       throw Object.assign(new Error('Product not found'), { status: 404 });
     }
+
     res.status(200).json({
       success: true,
       data: product,
+    });
+  }
+
+  async getProductStock(req: Request, res: Response): Promise<void> {
+    const { variantId } = req.query as { variantId: string };
+    if (!variantId) {
+      throw Object.assign(new Error('Variant ID is required'), { status: 400 });
+    }
+
+    const stock = await productService.getProductStock(req.params.id, variantId);
+    res.status(200).json({
+      success: true,
+      data: { stock },
     });
   }
 
