@@ -49,9 +49,34 @@ const CartRoute = Router();
  *                           product:
  *                             type: string
  *                             description: The product ID
+ *                           variantName:
+ *                             type: string
+ *                             description: The name of the variant (e.g., "Color")
+ *                           variantValue:
+ *                             type: string
+ *                             description: The value of the variant (e.g., "Red")
+ *                           price:
+ *                             type: number
+ *                             description: The price of the product
  *                           quantity:
  *                             type: number
  *                             description: The quantity of the product
+ *                           images:
+ *                             type: array
+ *                             items:
+ *                               type: string
+ *                               description: Image URLs for the product
+ *                     _id:
+ *                       type: string
+ *                       description: The cart ID
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       description: When the cart was created
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       description: When the cart was last updated
  *       401:
  *         description: Unauthorized
  */
@@ -186,23 +211,48 @@ export default CartRoute;
  *       type: object
  *       required:
  *         - product
+ *         - variantName
+ *         - variantValue
  *         - quantity
+ *         - price
  *       properties:
  *         product:
  *           type: string
  *           description: The ID of the product to add
+ *         variantName:
+ *           type: string
+ *           description: The name of the variant (e.g., "Color")
+ *         variantValue:
+ *           type: string
+ *           description: The value of the variant (e.g., "Red")
  *         quantity:
  *           type: number
  *           description: The quantity of the product to add
+ *         price:
+ *           type: number
+ *           description: The price of the product
+ *         images:
+ *           type: array
+ *           items:
+ *             type: string
+ *             description: Image URLs for the product
  *     UpdateCartItemDTO:
  *       type: object
  *       required:
  *         - product
+ *         - variantName
+ *         - variantValue
  *         - quantity
  *       properties:
  *         product:
  *           type: string
  *           description: The ID of the product to update
+ *         variantName:
+ *           type: string
+ *           description: The name of the variant (e.g., "Color")
+ *         variantValue:
+ *           type: string
+ *           description: The value of the variant (e.g., "Red")
  *         quantity:
  *           type: number
  *           description: The new quantity of the product

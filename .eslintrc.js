@@ -24,7 +24,7 @@ module.exports = {
         'prettier/prettier': 'error', // Enforce Prettier formatting
         '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }], // Warn on unused vars
         '@typescript-eslint/no-explicit-any': 'warn', // Warn on `any` usage
-        'no-console': 'off', // Allow console statements
+        'no-console': 'error', // Allow console statements
         'no-shadow': 'error', // Prevent variable shadowing
         'no-var': 'error', // Enforce const/let
         'prefer-const': 'error', // Prefer const

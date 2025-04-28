@@ -1,16 +1,15 @@
 import type { FilterQuery, UpdateQuery } from 'mongoose';
-
 import type { IProduct } from '@/dto/product.dto';
-
 import Product from '@/models/product.model';
-import Inventory from '@/models/inventory.model'; // Import the new Inventory model
 
 export class ProductService {
   /**
    * Create a new product
    */
   async createProduct(productData: Partial<IProduct>): Promise<IProduct> {
-    const product = new Product(productData);
+    const totalStock =
+      productData.variants?.reduce((sum, variant) => sum + (variant.stock || 0), 0) || 0;
+    const product = new Product({ ...productData, totalStock });
     return product.save();
   }
 
@@ -26,7 +25,6 @@ export class ProductService {
     const skip = (page - 1) * limit;
 
     const products = await Product.find(filter).sort(sort).skip(skip).limit(limit);
-
     const total = await Product.countDocuments(filter);
 
     return {
@@ -54,6 +52,15 @@ export class ProductService {
    * Update a product
    */
   async updateProduct(id: string, updateData: UpdateQuery<IProduct>): Promise<IProduct | null> {
+    if (updateData.variants) {
+      const totalStock = (updateData.variants as Array<{ stock?: number }>).reduce(
+        (sum, variant) => sum + (variant.stock || 0),
+        0,
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const updatedData = { ...updateData, totalStock };
+    }
+
     return Product.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
@@ -110,12 +117,10 @@ export class ProductService {
       return null;
     }
 
-    // Ensure `reviews` is initialized
     if (!product.reviews) {
       product.reviews = [];
     }
 
-    // Check if user already reviewed this product
     const existingReviewIndex = product.reviews.findIndex((review) => review.user === userId);
 
     const review = {
@@ -126,10 +131,8 @@ export class ProductService {
     };
 
     if (existingReviewIndex >= 0) {
-      // Update existing review
       product.reviews[existingReviewIndex] = review;
     } else {
-      // Add new review
       product.reviews.push(review);
     }
 
@@ -137,7 +140,7 @@ export class ProductService {
   }
 
   /**
-   * Update product stock
+   * Update product stock (by variant)
    */
   async updateProductStock(
     productId: string,
@@ -150,34 +153,40 @@ export class ProductService {
       return null;
     }
 
-    // Update stock in the Inventory model
-    const inventory = await Inventory.findOne({ product: productId, variant: variantId });
-    if (!inventory) {
-      throw new Error('Inventory record not found for the specified product and variant');
+    const variant = product.variants?.find((v) => v._id?.toString() === variantId);
+
+    if (!variant) {
+      throw new Error('Variant not found');
     }
 
-    inventory.stock = Math.max(0, inventory.stock + stockChange);
-    await inventory.save();
+    variant.stock = Math.max(0, (variant.stock || 0) + stockChange);
 
-    // Update product status based on total stock in Inventory
-    const totalStock = await Inventory.aggregate<{ totalStock: number }>([
-      { $match: { product: productId } },
-      { $group: { _id: null, totalStock: { $sum: '$stock' } } },
-    ]);
+    // Recalculate total stock
+    product.totalStock = product.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
 
-    product.status = totalStock[0]?.totalStock > 0 ? 'active' : 'discontinued';
+    // Update product status
+    product.status = product.totalStock > 0 ? 'active' : 'discontinued';
+
     return product.save();
   }
 
   /**
-   * Get product stock
+   * Get product stock (by variant)
    */
   async getProductStock(productId: string, variantId: string): Promise<number> {
-    const inventory = await Inventory.findOne({ product: productId, variant: variantId });
-    if (!inventory) {
-      throw new Error('Inventory record not found for the specified product and variant');
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      throw new Error('Product not found');
     }
-    return inventory.stock;
+
+    const variant = product.variants?.find((v) => v._id?.toString() === variantId);
+
+    if (!variant) {
+      throw new Error('Variant not found');
+    }
+
+    return variant.stock || 0;
   }
 
   /**
@@ -185,6 +194,25 @@ export class ProductService {
    */
   async getFeaturedProducts(limit = 10): Promise<IProduct[]> {
     return Product.find({ isFeatured: true }).sort('-createdAt').limit(limit);
+  }
+
+  /**
+   * Get products with pagination and filtering
+   */
+  async getFilteredProducts(
+    filter: FilterQuery<IProduct>,
+    page = 1,
+    limit = 10,
+    sort = '-createdAt',
+  ): Promise<{ products: IProduct[]; total: number; pages: number }> {
+    const skip = (page - 1) * limit;
+    const products = await Product.find(filter).sort(sort).skip(skip).limit(limit);
+    const total = await Product.countDocuments(filter);
+    return {
+      products,
+      total,
+      pages: Math.ceil(total / limit),
+    };
   }
 }
 

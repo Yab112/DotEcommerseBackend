@@ -2,6 +2,25 @@
 import { Schema, model } from 'mongoose';
 import type { IProduct } from '@/dto/product.dto';
 
+const variantSchema = new Schema(
+  {
+    sku: { type: String, trim: true, unique: true, sparse: true },
+    price: { type: Number, required: true, min: 0 },
+    stock: { type: Number, required: true, min: 0, default: 0 },
+    color: { type: String, required: true },
+    size: { type: String, required: true },
+    gender: { type: String, enum: ['male', 'female', 'child', 'unisex'], required: true },
+    images: [{ type: String, required: true }],
+    attributes: [
+      {
+        key: { type: String, required: true },
+        value: { type: String, required: true },
+      },
+    ],
+  },
+  { _id: false }, // no extra _id for each variant
+);
+
 const productSchema = new Schema<IProduct>(
   {
     name: {
@@ -40,19 +59,7 @@ const productSchema = new Schema<IProduct>(
       type: String,
       trim: true,
     },
-    variants: [
-      {
-        name: { type: String, required: true },
-        options: [
-          {
-            value: { type: String, required: true },
-            price: { type: Number, required: true, min: 0 },
-            stock: { type: Number, required: true, min: 0 },
-            images: [{ type: String, required: true }],
-          },
-        ],
-      },
-    ],
+    variants: [variantSchema],
     specifications: [
       {
         key: { type: String, required: true },
@@ -92,19 +99,33 @@ const productSchema = new Schema<IProduct>(
       type: Boolean,
       default: false,
     },
+    totalStock: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
+    },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
+// Auto calculate totalStock from variants
 productSchema.pre('save', function (next) {
-  if (this.reviews && this.reviews.length > 0) {
-    const totalRating = this.reviews.reduce((sum, review) => sum + review.rating, 0);
-    this.averageRating = totalRating / this.reviews.length;
+  const product = this as IProduct;
+
+  if (product.variants && product.variants.length > 0) {
+    product.totalStock = product.variants.reduce((sum, variant) => sum + variant.stock, 0);
   } else {
-    this.averageRating = 0;
+    product.totalStock = 0;
   }
+
+  if (product.reviews && product.reviews.length > 0) {
+    const totalRating = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+    product.averageRating = totalRating / product.reviews.length;
+  } else {
+    product.averageRating = 0;
+  }
+
   next();
 });
 

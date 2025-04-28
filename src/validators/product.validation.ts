@@ -95,3 +95,16 @@ export const bulkUpdateStockSchema = Joi.array().items(
     stock: Joi.number().min(0).required(),
   }),
 );
+
+// 9. Filter Products
+export const filterProductsSchema = Joi.object({
+  page: Joi.number().min(1).optional(),
+  limit: Joi.number().min(1).optional(),
+  sort: Joi.string().optional(),
+  category: Joi.string().optional(),
+  brand: Joi.string().optional(),
+  minPrice: Joi.number().min(0).optional(),
+  maxPrice: Joi.number().min(0).optional(),
+  isFeatured: Joi.boolean().optional(),
+  status: Joi.string().valid('active', 'draft', 'out_of_stock', 'discontinued').optional(),
+});
