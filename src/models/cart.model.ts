@@ -16,17 +16,27 @@ const cartSchema = new Schema<ICart>(
           ref: 'Product',
           required: true,
         },
-        variant: [
-          {
-            name: { type: String, required: true },
-            value: { type: String, required: true },
-          },
-        ],
+        variantName: {
+          type: String,
+          required: true,
+        }, // example: "Color", "Size", "Gender"
+        variantValue: {
+          type: String,
+          required: true,
+        }, // example: "Red", "Small", "Male"
+        price: {
+          type: Number,
+          required: true,
+        }, // store price at time of adding to cart
         quantity: {
           type: Number,
           required: true,
           min: 1,
         },
+        images: {
+          type: [String],
+          default: [],
+        }, // optional: show selected variant images
       },
     ],
   },

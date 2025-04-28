@@ -1,12 +1,10 @@
 // services/checkout.service.ts
-import Inventory from '@/models/inventory.model';
 import Product from '@/models/product.model';
 import PaymentIntent from '@/models/paymentIntent.model';
 import { cartService } from '@/services/cart.service';
 import { Stripe } from 'stripe';
 import { Types } from 'mongoose';
 import { CheckoutDTO } from '@/types/checkout.type';
-import { ICart, ICartItem } from '@/dto/cart.dto';
 import { env } from '@/config/env';
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-03-31.basil' });
@@ -18,48 +16,37 @@ class CheckoutService {
   ): Promise<{ clientSecret: string; paymentIntentId: Types.ObjectId }> {
     const { shippingAddress, paymentMethod } = checkoutData;
     const cartData = await cartService.getCart(userId);
-    const cart: ICart = {
-      ...cartData,
-      user: typeof cartData.user === 'string' ? new Types.ObjectId(cartData.user) : cartData.user,
-      items: cartData.items.map((item: ICartItem) => ({
-        ...item,
-        product: typeof item.product === 'string' ? new Types.ObjectId(item.product) : item.product,
-        variant: item.variant.map((v) => ({
-          name: v.name,
-          value: v.value,
-        })),
-      })),
-    };
 
-    if (!cart.items.length) {
+    if (!cartData.items.length) {
       throw new Error('Cart is empty');
     }
 
-    // Check stock for each product-variant combination
+    // Validate product and variant details
     await Promise.all(
-      cart.items.map(async (item: ICartItem) => {
-        const inventory = await Inventory.findOne({
-          product: item.product,
-          variant: {
-            $all: item.variant.map(({ name, value }) => ({ $elemMatch: { name, value } })),
-          },
-        });
+      cartData.items.map(async (item) => {
+        const product = await Product.findById(item.product);
+        if (!product) {
+          throw new Error(`Product ${item.product.toString()} not found`);
+        }
 
-        if (!inventory) {
+        const variant = product.variants.find(
+          (v) => v.name === item.variantName && v.value === item.variantValue,
+        );
+        if (!variant) {
           throw new Error(
-            `Product ${item.product.toString()} with variant ${JSON.stringify(item.variant)} not found in inventory`,
+            `Variant ${item.variantName}:${item.variantValue} not found for product ${item.product as string}`,
           );
         }
 
-        if (inventory.stock < item.quantity) {
+        if (variant.stock < item.quantity) {
           throw new Error(
-            `Product ${item.product.toString()} with variant ${JSON.stringify(item.variant)} is out of stock`,
+            `Insufficient stock for product ${item.product as string} variant ${item.variantName}:${item.variantValue}`,
           );
         }
       }),
     );
 
-    const totalAmount = await this.calculateTotal(cart.items);
+    const totalAmount = await this.calculateTotal(cartData.items);
 
     let paymentIntent: Stripe.PaymentIntent;
     if (paymentMethod === 'stripe') {
@@ -68,7 +55,7 @@ class CheckoutService {
         currency: 'usd',
         metadata: {
           userId,
-          cartId: cart._id ? cart._id.toString() : '',
+          cartId: cartData._id.toString(),
         },
       });
     } else {
@@ -91,41 +78,32 @@ class CheckoutService {
     return { clientSecret: paymentIntent.client_secret, paymentIntentId: paymentIntentDoc._id };
   }
 
-  private async calculateTotal(items: ICartItem[]): Promise<number> {
-    const total = await items.reduce(async (accPromise, item) => {
+  private async calculateTotal(
+    items: {
+      product: string | Types.ObjectId;
+      variantName: string;
+      variantValue: string;
+      quantity: number;
+    }[],
+  ): Promise<number> {
+    return items.reduce(async (accPromise, item) => {
       const acc = await accPromise;
       const product = await Product.findById(item.product);
       if (!product) {
-        throw new Error(`Product ${item.product.toString()} not found`);
+        throw new Error(`Product ${item.product as string} not found`);
       }
 
-      // Find the variant's price
-      let variantPrice = 0;
-      const matchingVariant = product.variants.find((variant) =>
-        item.variant.every((v) =>
-          variant.options.some((opt) => opt.value === v.value && variant.name === v.name),
-        ),
+      const variant = product.variants.find(
+        (v) => v.name === item.variantName && v.value === item.variantValue,
       );
-
-      if (matchingVariant) {
-        const matchingOption = matchingVariant.options.find((option) =>
-          item.variant.some((v) => option.value === v.value),
-        );
-        if (matchingOption) {
-          variantPrice = matchingOption.price;
-        }
-      }
-
-      if (variantPrice === 0) {
+      if (!variant) {
         throw new Error(
-          `Price not found for product ${item.product.toString()} variant ${JSON.stringify(item.variant)}`,
+          `Variant ${item.variantName}:${item.variantValue} not found for product ${item.product as string}`,
         );
       }
 
-      return acc + variantPrice * item.quantity;
+      return acc + variant.price * item.quantity;
     }, Promise.resolve(0));
-
-    return total;
   }
 }
 

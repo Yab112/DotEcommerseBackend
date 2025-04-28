@@ -1,6 +1,25 @@
 // dto/product.dto.ts
 import { Document } from 'mongoose';
 
+export interface VariantBase {
+  _id?: string;
+  sku?: string;
+  price: number;
+  stock: number;
+  color: string;
+  size: string;
+  gender: 'male' | 'female' | 'child' | 'unisex';
+  images: string[];
+  attributes?: {
+    key: string;
+    value: string;
+  }[];
+}
+
+export interface Variant extends Omit<VariantBase, 'attributes'> {
+  [x: string]: string | number | string[] | undefined;
+}
+
 export interface IProduct extends Document {
   name: string;
   description: string;
@@ -9,14 +28,7 @@ export interface IProduct extends Document {
   category: string;
   subCategory?: string;
   brand?: string;
-  variants: {
-    name: string; // e.g., "Size", "Color"
-    options: {
-      value: string; // e.g., "Small", "Red"
-      price: number;
-      images: string[];
-    }[];
-  }[];
+  variants: Variant[];
   specifications?: {
     key: string;
     value: string;
@@ -37,6 +49,7 @@ export interface IProduct extends Document {
     height: number;
   };
   isFeatured?: boolean;
+  totalStock: number;
   createdAt: Date;
   updatedAt: Date;
 }

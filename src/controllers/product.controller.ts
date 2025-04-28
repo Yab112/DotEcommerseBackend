@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { IProduct, ProductFilter } from '@/dto/product.dto';
+import { FilterQuery } from 'mongoose';
 import productService from '../services/product.service';
 
 class ProductController {
@@ -192,6 +193,26 @@ class ProductController {
     res.status(200).json({
       success: true,
       data: products,
+    });
+  }
+
+  async getFilteredProducts(req: Request, res: Response): Promise<void> {
+    const { page = '1', limit = '10', sort = '-createdAt', ...filters } = req.query;
+    const result = await productService.getFilteredProducts(
+      filters as FilterQuery<IProduct>,
+      Number(page),
+      Number(limit),
+      sort as string,
+    );
+    res.status(200).json({
+      success: true,
+      data: result.products,
+      pagination: {
+        total: result.total,
+        pages: result.pages,
+        page: Number(page),
+        limit: Number(limit),
+      },
     });
   }
 }

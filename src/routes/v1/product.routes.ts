@@ -68,5 +68,11 @@ const ProductRoute = Router();
     authenticate,
     controllerWrapper(ProductController.getProductStock),
   );
+  ProductRoute.get(
+    '/filtered',
+    authRateLimiterMiddleware,
+    authenticate,
+    controllerWrapper(ProductController.getFilteredProducts),
+  );
 })();
 export default ProductRoute;

@@ -7,24 +7,40 @@ class WishlistController {
   getWishlist = async (req: Request, res: Response) => {
     const userId = req.user?.id;
     if (!userId) throw new Error('Unauthorized');
-    const products = await wishlistService.getWishlist(userId);
-    res.status(200).json({ data: products });
+    const wishlist = await wishlistService.getWishlist(userId);
+    res.status(200).json({ data: wishlist });
   };
 
   addToWishlist = async (req: Request, res: Response) => {
     const userId = req.user?.id;
     if (!userId) throw new Error('Unauthorized');
-    const productId = req.body as string;
-    const products = await wishlistService.addProduct(userId, productId);
-    res.status(200).json({ data: products });
+    const { product, variant, price, images } = req.body as {
+      product: string;
+      variant: { name: string; value: string };
+      price: number;
+      images: string[];
+    };
+    const wishlist = await wishlistService.addProduct(userId, {
+      product,
+      variant,
+      price,
+      images,
+    });
+    res.status(200).json({ data: wishlist });
   };
 
   removeFromWishlist = async (req: Request, res: Response) => {
     const userId = req.user?.id;
     if (!userId) throw new Error('Unauthorized');
-    const { productId } = req.params;
-    const products = await wishlistService.removeProduct(userId, productId);
-    res.status(200).json({ data: products });
+    const { productId, variant } = req.body as {
+      productId: string;
+      variant: { name: string; value: string };
+    };
+    const wishlist = await wishlistService.removeProduct(userId, {
+      productId,
+      variant,
+    });
+    res.status(200).json({ data: wishlist });
   };
 
   clearWishlist = async (req: Request, res: Response) => {
@@ -37,14 +53,24 @@ class WishlistController {
   moveToCart = async (req: Request, res: Response) => {
     const userId = req.user?.id;
     if (!userId) throw new Error('Unauthorized');
-    const { productId } = req.params;
+    const { productId, variantName, variantValue } = req.params;
 
     // Remove product from wishlist and add to cart
-    await wishlistService.removeProduct(userId, productId);
+    const productDetails = await wishlistService.removeProduct(userId, {
+      productId,
+      variant: {
+        name: variantName,
+        value: variantValue,
+      },
+    });
+
     const updatedCart = await cartService.addToCart(userId, {
       product: productId,
-      variant: [],
+      variantName,
+      variantValue,
       quantity: 1,
+      price: typeof productDetails?.price === 'number' ? productDetails.price : 0,
+      images: Array.isArray(productDetails?.images) ? productDetails.images : [],
     });
 
     res.status(200).json({ data: updatedCart });

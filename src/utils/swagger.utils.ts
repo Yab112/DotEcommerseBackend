@@ -4,48 +4,15 @@ import path from 'path';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import type { Express, Request, Response } from 'express';
+import logger from '@/services/logger.service';
+import {
+  SwaggerComponents,
+  SwaggerInfo,
+  SwaggerSecurityScheme,
+  SwaggerServer,
+} from '@/types/swagger.types';
 
 // Type definitions for Swagger components
-interface SwaggerContact {
-  name: string;
-  email: string;
-  url: string;
-}
-
-interface SwaggerLicense {
-  name: string;
-  url: string;
-}
-
-interface SwaggerInfo {
-  title: string;
-  version: string;
-  description: string;
-  contact: SwaggerContact;
-  license: SwaggerLicense;
-}
-
-interface SwaggerServer {
-  url: string;
-  description: string;
-}
-
-interface SwaggerSecurityScheme {
-  type: string;
-  scheme: string;
-  bearerFormat: string;
-  description: string;
-}
-
-interface SwaggerComponents {
-  securitySchemes: {
-    bearerAuth: SwaggerSecurityScheme;
-  };
-  schemas: {
-    User: Record<string, unknown>;
-    Error: Record<string, unknown>;
-  };
-}
 
 // Load package.json with type safety
 const packageJsonPath = path.join(__dirname, '../../package.json');
@@ -143,7 +110,7 @@ const options: swaggerJsdoc.Options = {
       },
     ],
   },
-  apis: ['./src/routes/**/*.ts', './src/models/*.ts', './src/controllers/*.ts'],
+  apis: ['./src/routes/**/*.ts', './src/models/**/*.ts', './src/controllers/**/*.ts'],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
@@ -158,8 +125,11 @@ export const swaggerDocs = (app: Express, port: number): void => {
     res.send(swaggerSpec);
   });
 
-  console.log(`
-    📚 Swagger UI available at http://localhost:${port}/api-docs
-    📝 API Specification available at http://localhost:${port}/api-docs.json
-  `);
+  logger.log({
+    message: `
+      📚 Swagger UI available at http://localhost:${port}/api-docs
+      📝 API Specification available at http://localhost:${port}/api-docs.json
+    `,
+    level: 'info',
+  });
 };
