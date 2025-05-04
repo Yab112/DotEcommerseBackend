@@ -26,7 +26,14 @@ const options: swaggerJsdoc.Options = {
       title: 'P2P Marketplace API',
       version: packageJson.version,
       description: `
-        API Documentation for P2P Marketplace
+        API Documentation for eccomerce backenbackend.
+        This API allows users to manage their profiles, products, and transactions in a peer-to-peer marketplace.
+        The API is designed to be RESTful and follows standard conventions for HTTP methods and status codes.
+        The API is built with TypeScript and Express, and uses MongoDB for data storage.
+        The API supports user authentication using JWT, and includes features for managing product listings,
+        peer-to-peer transactions, and messaging between users.
+        The API is designed to be secure, scalable, and easy to use.
+        
         
          Key Features:
         - User authentication (JWT)
