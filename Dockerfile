@@ -1,5 +1,5 @@
 # Use official Node.js 18 (or 20) on Alpine 3.19
-FROM node:18-alpine3.19
+FROM node:slim
 
 # Set working directory
 WORKDIR /app
