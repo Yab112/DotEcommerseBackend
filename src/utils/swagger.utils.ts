@@ -60,7 +60,7 @@ const options: swaggerJsdoc.Options = {
         description: 'Development server',
       },
       {
-        url: 'https://dotecommersebackend.onrender.com',
+        url: 'https://dotbackendcode-latst.onrender.com',
         description: 'Production server',
       },
     ] as SwaggerServer[],
@@ -132,11 +132,6 @@ export const swaggerDocs = (app: Express, port: number): void => {
     res.send(swaggerSpec);
   });
 
-  logger.log({
-    message: `
-      📚 Swagger UI available at http://localhost:${port}/api-docs
-      📝 API Specification available at http://localhost:${port}/api-docs.json
-    `,
-    level: 'info',
-  });
+  logger.info('📚 Swagger UI available at http://localhost:5000/api-docs');
+  logger.info('📝 API Specification available at http://localhost:5000/api-docs.json');
 };
