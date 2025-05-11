@@ -49,6 +49,11 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
+    dateOfBirth: {
+      type: Date,
+      required: false,
+      default: null,
+    },
     address: {
       street: { type: String },
       city: { type: String },

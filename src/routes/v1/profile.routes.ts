@@ -30,6 +30,10 @@ import { profileController } from '@/controllers/profile.controller';
  *               properties:
  *                 data:
  *                   $ref: '#/components/schemas/User'
+ *                 dateOfBirth:
+ *                   type: string
+ *                   format: date
+ *                   description: Date of birth of the user
  *       401:
  *         description: Unauthorized - The user is not authenticated
  *       404:
@@ -59,6 +63,10 @@ import { profileController } from '@/controllers/profile.controller';
  *               properties:
  *                 data:
  *                   $ref: '#/components/schemas/User'
+ *                 dateOfBirth:
+ *                   type: string
+ *                   format: date
+ *                   description: Date of birth of the user
  *       400:
  *         description: Bad request - Invalid input data
  *       401:

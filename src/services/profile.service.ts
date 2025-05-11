@@ -1,5 +1,5 @@
 import logger from '@/services/logger.service';
-import User from '@/models/User.nodel';
+import User from '@/models/profile.model';
 import { IUser } from '@/dto/user.dto';
 import { UpdateProfileDTO } from '@/dto/profile.dto';
 
@@ -21,11 +21,15 @@ export class ProfileService {
 
   async updateProfile(userId: string, updateData: UpdateProfileDTO): Promise<IUser> {
     try {
+      const updatedData = { ...updateData };
+      if (updatedData.dateOfBirth) {
+        updatedData.dateOfBirth = new Date(updatedData.dateOfBirth).toISOString();
+      }
       const user = await User.findByIdAndUpdate<IUser>(
         userId,
-        { $set: updateData },
+        { $set: updatedData },
         { new: true, runValidators: true },
-      )?.select('-password -googleId');
+      ).select('-password -googleId');
       if (!user) {
         logger.error(`User not found for ID: ${userId}`);
         throw new Error('User not found');

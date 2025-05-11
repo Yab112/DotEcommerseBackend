@@ -30,6 +30,9 @@ export class ProfileController {
         throw new Error('Unauthorized');
       }
       const updateData = req.body as UpdateProfileDTO;
+      if (updateData.dateOfBirth) {
+        updateData.dateOfBirth = new Date(updateData.dateOfBirth).toISOString();
+      }
       const updatedProfile = await profileService.updateProfile(userId, updateData);
       res.status(200).json({ data: updatedProfile });
     } catch (error) {
