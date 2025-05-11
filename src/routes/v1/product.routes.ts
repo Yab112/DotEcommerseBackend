@@ -229,7 +229,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/getProducts:
+ * /products/getProducts:
  *   get:
  *     summary: Get all products with pagination and filtering
  *     tags: [Products]
@@ -314,7 +314,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/search:
+ * /products/search:
  *   get:
  *     summary: Search products by name, description, or tags
  *     tags: [Products]
@@ -370,7 +370,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/featured:
+ * /products/featured:
  *   get:
  *     summary: Get featured products
  *     tags: [Products]
@@ -401,7 +401,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/sku/{sku}:
+ * /products/sku/{sku}:
  *   get:
  *     summary: Get a product by SKU
  *     tags: [Products]
@@ -432,7 +432,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/{id}:
+ * /products/{id}:
  *   get:
  *     summary: Get a product by ID
  *     tags: [Products]
@@ -463,7 +463,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/createProduct:
+ * /products/createProduct:
  *   post:
  *     summary: Create a new product
  *     tags: [Products]
@@ -497,7 +497,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/{id}:
+ * /products/{id}:
  *   put:
  *     summary: Update a product
  *     tags: [Products]
@@ -540,7 +540,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/{id}:
+ * /products/{id}:
  *   delete:
  *     summary: Delete a product
  *     tags: [Products]
@@ -575,7 +575,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/{id}/reviews:
+ * /products/{id}/reviews:
  *   post:
  *     summary: Add a review to a product
  *     tags: [Products]
@@ -627,7 +627,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/{id}/stock:
+ * /products/{id}/stock:
  *   patch:
  *     summary: Update product stock
  *     tags: [Products]
@@ -719,7 +719,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/filtered:
+ * /products/filtered:
  *   get:
  *     summary: Get filtered products
  *     tags: [Products]
