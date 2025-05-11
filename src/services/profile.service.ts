@@ -21,24 +21,37 @@ export class ProfileService {
 
   async updateProfile(userId: string, updateData: UpdateProfileDTO): Promise<IUser> {
     try {
+      // Create a new object to avoid mutating the parameter
       const updatedData = { ...updateData };
+
       if (updatedData.dateOfBirth) {
-        updatedData.dateOfBirth = new Date(updatedData.dateOfBirth).toISOString();
+        const parsedDate = new Date(updatedData.dateOfBirth);
+        if (Number.isNaN(parsedDate.getTime())) {
+          logger.error(`Invalid date format for dateOfBirth: ${updatedData.dateOfBirth}`);
+          throw new Error('Invalid date format for dateOfBirth');
+        }
+        updatedData.dateOfBirth = parsedDate.toISOString();
       }
+
       const user = await User.findByIdAndUpdate<IUser>(
         userId,
         { $set: updatedData },
         { new: true, runValidators: true },
-      ).select('-password -googleId');
+      )?.select('-password -googleId');
+
       if (!user) {
         logger.error(`User not found for ID: ${userId}`);
         throw new Error('User not found');
       }
+
       logger.info(`Profile updated for user ID: ${userId}`);
       return user;
-    } catch (error) {
-      logger.error(`Error updating profile for user ID: ${userId}`, { error });
-      throw error;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logger.error(`Error updating profile for user ID: ${userId}`, {
+        error: errorMessage,
+      });
+      throw error instanceof Error ? error : new Error('Unknown error occurred');
     }
   }
 
