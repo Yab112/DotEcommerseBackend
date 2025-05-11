@@ -125,6 +125,7 @@ const swaggerSpec = swaggerJsdoc(options);
 export const swaggerDocs = (app: Express, port: number): void => {
   // Swagger UI
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  logger.info(`📚 Swagger UI available at http://localhost:${port}/api-docs`);
 
   // API Docs in JSON format
   app.get('/api-docs.json', (req: Request, res: Response) => {
