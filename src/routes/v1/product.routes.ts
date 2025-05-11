@@ -229,7 +229,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /api/products/getProducts:
+ * /api/product/getProducts:
  *   get:
  *     summary: Get all products with pagination and filtering
  *     tags: [Products]
@@ -314,7 +314,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /api/products/search:
+ * /api/product/search:
  *   get:
  *     summary: Search products by name, description, or tags
  *     tags: [Products]
@@ -370,7 +370,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /api/products/featured:
+ * /api/product/featured:
  *   get:
  *     summary: Get featured products
  *     tags: [Products]
@@ -401,7 +401,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /api/products/sku/{sku}:
+ * /api/product/sku/{sku}:
  *   get:
  *     summary: Get a product by SKU
  *     tags: [Products]
@@ -432,7 +432,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /api/products/{id}:
+ * /api/product/{id}:
  *   get:
  *     summary: Get a product by ID
  *     tags: [Products]
@@ -463,7 +463,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /api/products/createProduct:
+ * /api/product/createProduct:
  *   post:
  *     summary: Create a new product
  *     tags: [Products]
@@ -497,7 +497,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /api/products/{id}:
+ * /api/product/{id}:
  *   put:
  *     summary: Update a product
  *     tags: [Products]
@@ -540,7 +540,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /api/products/{id}:
+ * /api/product/{id}:
  *   delete:
  *     summary: Delete a product
  *     tags: [Products]
@@ -575,7 +575,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /api/products/{id}/reviews:
+ * /api/product/{id}/reviews:
  *   post:
  *     summary: Add a review to a product
  *     tags: [Products]
@@ -627,7 +627,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /api/products/{id}/stock:
+ * /api/product/{id}/stock:
  *   patch:
  *     summary: Update product stock
  *     tags: [Products]
@@ -719,7 +719,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /api/products/filtered:
+ * /api/product/filtered:
  *   get:
  *     summary: Get filtered products
  *     tags: [Products]
