@@ -33,4 +33,4 @@ jobs:
     steps:
       - name: Trigger redeploy on Render
         run: |
-          curl -X POST "https://api.render.com/deploy/srv-cvufjvi4d50c73auk8i0?key=${{ secrets.RENDER_DEPLOY_HOOK }}"
+          curl -X POST "https://api.render.com/deploy/srv-d0bvrnbuibrs73dn276g?key=${{ secrets.RENDER_DEPLOY_HOOK }}"
