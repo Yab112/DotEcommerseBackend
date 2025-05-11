@@ -133,6 +133,6 @@ export const swaggerDocs = (app: Express, port: number): void => {
     res.send(swaggerSpec);
   });
 
-  logger.info('📚 Swagger UI available at http://localhost:5000/api-docs');
-  logger.info('📝 API Specification available at http://localhost:5000/api-docs.json');
+  logger.info(`📚 Swagger UI available at http://localhost:${port}/api-docs`);
+  logger.info(`📝 API Specification available at http://localhost:${port}/api-docs.json`);
 };
