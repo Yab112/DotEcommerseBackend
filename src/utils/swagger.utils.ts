@@ -122,7 +122,7 @@ const options: swaggerJsdoc.Options = {
 
 const swaggerSpec = swaggerJsdoc(options);
 
-export const swaggerDocs = (app: Express, port: number): void => {
+export const swaggerDocs = (app: Express, _port: number): void => {
   // Swagger UI
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

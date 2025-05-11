@@ -21,14 +21,15 @@ export class ProfileService {
 
   async updateProfile(userId: string, updateData: UpdateProfileDTO): Promise<IUser> {
     try {
-      if (updateData.dateOfBirth) {
-        updateData.dateOfBirth = new Date(updateData.dateOfBirth).toISOString();
+      const updatedData = { ...updateData };
+      if (updatedData.dateOfBirth) {
+        updatedData.dateOfBirth = new Date(updatedData.dateOfBirth).toISOString();
       }
       const user = await User.findByIdAndUpdate<IUser>(
         userId,
-        { $set: updateData },
+        { $set: updatedData },
         { new: true, runValidators: true },
-      )?.select('-password -googleId');
+      ).select('-password -googleId');
       if (!user) {
         logger.error(`User not found for ID: ${userId}`);
         throw new Error('User not found');
