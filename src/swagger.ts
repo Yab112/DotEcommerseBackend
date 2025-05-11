@@ -16,7 +16,7 @@ const options = {
         description: 'Development server',
       },
       {
-        url: 'https://api.dotecommerse.com/api', // Corrected production server URL
+        url: 'https://dotbackendcode-latst.onrender.com', // Corrected production server URL
         description: 'Production server',
       },
     ],
