@@ -1,4 +1,4 @@
-import User from '@/models/User.nodel';
+import User from '@/models/profile.model';
 import { hashPassword, comparePassword } from '@/utils/password.utils';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/utils/jwt.utils';
 import type { IUser } from '@/dto/user.dto';

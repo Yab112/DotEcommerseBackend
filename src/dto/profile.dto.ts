@@ -17,6 +17,10 @@
  *         phone:
  *           type: string
  *           description: Phone number of the user
+ *         dateOfBirth:
+ *           type: string
+ *           format: date
+ *           description: Date of birth of the user
  *         address:
  *           type: object
  *           properties:
@@ -41,6 +45,7 @@ export interface UpdateProfileDTO {
   lastName?: string;
   bio?: string;
   phone?: string;
+  dateOfBirth?: string;
   address?: {
     street?: string;
     city?: string;

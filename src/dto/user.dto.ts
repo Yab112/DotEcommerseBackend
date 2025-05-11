@@ -22,6 +22,7 @@ export interface IUser {
   isAdmin?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  dateOfBirth?: Date;
 }
 
 export interface LoginDTO {

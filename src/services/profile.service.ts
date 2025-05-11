@@ -1,5 +1,5 @@
 import logger from '@/services/logger.service';
-import User from '@/models/User.nodel';
+import User from '@/models/profile.model';
 import { IUser } from '@/dto/user.dto';
 import { UpdateProfileDTO } from '@/dto/profile.dto';
 
@@ -21,6 +21,9 @@ export class ProfileService {
 
   async updateProfile(userId: string, updateData: UpdateProfileDTO): Promise<IUser> {
     try {
+      if (updateData.dateOfBirth) {
+        updateData.dateOfBirth = new Date(updateData.dateOfBirth).toISOString();
+      }
       const user = await User.findByIdAndUpdate<IUser>(
         userId,
         { $set: updateData },
