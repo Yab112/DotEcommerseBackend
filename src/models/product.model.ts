@@ -2,24 +2,21 @@
 import { Schema, model } from 'mongoose';
 import type { IProduct } from '@/dto/product.dto';
 
-const variantSchema = new Schema(
-  {
-    sku: { type: String, trim: true, unique: true, sparse: true },
-    price: { type: Number, required: true, min: 0 },
-    stock: { type: Number, required: true, min: 0, default: 0 },
-    color: { type: String, required: true },
-    size: { type: String, required: true },
-    gender: { type: String, enum: ['male', 'female', 'child', 'unisex'], required: true },
-    images: [{ type: String, required: true }],
-    attributes: [
-      {
-        key: { type: String, required: true },
-        value: { type: String, required: true },
-      },
-    ],
-  },
-  { _id: false }, // no extra _id for each variant
-);
+const variantSchema = new Schema({
+  sku: { type: String, trim: true, required: true },
+  price: { type: Number, min: 0, required: true },
+  stock: { type: Number, min: 0, default: 0, required: true },
+  color: { type: String, required: true },
+  size: { type: String, required: true },
+  gender: { type: String, enum: ['male', 'female', 'child', 'unisex'], required: true },
+  images: [{ type: String, required: true }],
+  attributes: [
+    {
+      key: { type: String, required: true },
+      value: { type: String, required: true },
+    },
+  ],
+});
 
 const productSchema = new Schema<IProduct>(
   {
@@ -59,7 +56,10 @@ const productSchema = new Schema<IProduct>(
       type: String,
       trim: true,
     },
-    variants: [variantSchema],
+    variants: {
+      type: [variantSchema],
+      required: true,
+    },
     specifications: [
       {
         key: { type: String, required: true },
@@ -108,6 +108,7 @@ const productSchema = new Schema<IProduct>(
   },
   { timestamps: true },
 );
+
 
 // Auto calculate totalStock from variants
 productSchema.pre('save', function (next) {

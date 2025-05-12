@@ -10,7 +10,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/getProducts:
+ * /api/product/getProducts:
  *   get:
  *     summary: Get all products
  *     tags: [Products]
@@ -64,7 +64,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/{id}:
+ * /api/product/{id}:
  *   get:
  *     summary: Get a product by ID
  *     tags: [Products]
@@ -95,7 +95,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/createProduct:
+ * /api/product/createProduct:
  *   post:
  *     summary: Create a new product
  *     tags: [Products]
@@ -125,7 +125,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/{id}:
+ * /api/product/{id}:
  *   put:
  *     summary: Update a product
  *     tags: [Products]
@@ -162,7 +162,7 @@ import { Router } from 'express';
 
 /**
  * @swagger
- * /v1/products/{id}:
+ * /api/product/{id}:
  *   delete:
  *     summary: Delete a product
  *     tags: [Products]
@@ -211,55 +211,55 @@ const ProductRoute = Router();
   const authRateLimiterMiddleware = await authRateLimiter();
 
   // Public routes
-  ProductRoute.get('/getProducts', controllerWrapper(ProductController.getProducts));
-  ProductRoute.get('/search', controllerWrapper(ProductController.searchProducts));
-  ProductRoute.get('/featured', controllerWrapper(ProductController.getFeaturedProducts));
-  ProductRoute.get('/sku/:sku', controllerWrapper(ProductController.getProductBySku));
-  ProductRoute.get('/:id', controllerWrapper(ProductController.getProductById));
+  ProductRoute.get('/api/product/getProducts', controllerWrapper(ProductController.getProducts));
+  ProductRoute.get('/api/product/search', controllerWrapper(ProductController.searchProducts));
+  ProductRoute.get('/api/product/featured', controllerWrapper(ProductController.getFeaturedProducts));
+  ProductRoute.get('/api/product/sku/:sku', controllerWrapper(ProductController.getProductBySku));
+  ProductRoute.get('/api/product/:id', controllerWrapper(ProductController.getProductById));
 
   // Protected routes - require authentication
   ProductRoute.post(
-    '/createProduct',
+    '/api/product/createProduct',
     authRateLimiterMiddleware,
     authenticate,
     validate(createProductSchema),
     controllerWrapper(ProductController.createProduct),
   );
   ProductRoute.put(
-    '/:id',
+    '/api/product/:id',
     authRateLimiterMiddleware,
     authenticate,
     validate(updateProductSchema),
     controllerWrapper(ProductController.updateProduct),
   );
   ProductRoute.delete(
-    '/:id',
+    '/api/product/:id',
     authRateLimiterMiddleware,
     authenticate,
     controllerWrapper(ProductController.deleteProduct),
   );
   ProductRoute.post(
-    '/:id/reviews',
+    '/api/product/:id/reviews',
     authRateLimiterMiddleware,
     authenticate,
     validate(addReviewSchema),
     controllerWrapper(ProductController.addProductReview),
   );
   ProductRoute.patch(
-    '/:id/stock',
+    '/api/product/:id/stock',
     authRateLimiterMiddleware,
     authenticate,
     validate(updateProductStockSchema),
     controllerWrapper(ProductController.updateProductStock),
   );
   ProductRoute.get(
-    '/:id/stock',
+    '/api/product/:id/stock',
     authRateLimiterMiddleware,
     authenticate,
     controllerWrapper(ProductController.getProductStock),
   );
   ProductRoute.get(
-    '/filtered',
+    '/api/product/filtered',
     authRateLimiterMiddleware,
     authenticate,
     controllerWrapper(ProductController.getFilteredProducts),
