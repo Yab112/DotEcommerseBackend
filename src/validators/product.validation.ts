@@ -16,12 +16,14 @@ const variantSchema = Joi.object({
   size: Joi.string().required(),
   gender: Joi.string().valid('male', 'female', 'child', 'unisex').required(),
   images: Joi.array().items(Joi.string().uri()).min(1).required(),
-  attributes: Joi.array().items(
-    Joi.object({
-      key: Joi.string().required(),
-      value: Joi.string().required(),
-    })
-  ).optional(),
+  attributes: Joi.array()
+    .items(
+      Joi.object({
+        key: Joi.string().required(),
+        value: Joi.string().required(),
+      }),
+    )
+    .optional(),
 });
 
 const specificationSchema = Joi.object({
@@ -33,13 +35,17 @@ const specificationSchema = Joi.object({
 export const createProductSchema = Joi.object({
   name: Joi.string().min(3).max(100).required(),
   description: Joi.string().min(10).required(),
-  type: Joi.alternatives().try(
-    Joi.string(),
-    Joi.array().items(Joi.object({
-      key: Joi.string().required(),
-      value: Joi.string().required()
-    }))
-  ).required(),
+  type: Joi.alternatives()
+    .try(
+      Joi.string(),
+      Joi.array().items(
+        Joi.object({
+          key: Joi.string().required(),
+          value: Joi.string().required(),
+        }),
+      ),
+    )
+    .required(),
   sku: Joi.string().required(),
   price: Joi.number().min(0).required(),
   compareAtPrice: Joi.number().min(0).optional(),

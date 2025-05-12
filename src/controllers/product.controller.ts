@@ -264,7 +264,11 @@ class ProductController {
         return;
       }
 
-      const product = await productService.updateProductStock(req.params.id, variantId, stockChange);
+      const product = await productService.updateProductStock(
+        req.params.id,
+        variantId,
+        stockChange,
+      );
       if (!product) {
         res.status(404).json({
           success: false,

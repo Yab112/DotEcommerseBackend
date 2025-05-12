@@ -109,7 +109,6 @@ const productSchema = new Schema<IProduct>(
   { timestamps: true },
 );
 
-
 // Auto calculate totalStock from variants
 productSchema.pre('save', function (next) {
   const product = this as IProduct;

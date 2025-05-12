@@ -213,7 +213,10 @@ const ProductRoute = Router();
   // Public routes
   ProductRoute.get('/api/product/getProducts', controllerWrapper(ProductController.getProducts));
   ProductRoute.get('/api/product/search', controllerWrapper(ProductController.searchProducts));
-  ProductRoute.get('/api/product/featured', controllerWrapper(ProductController.getFeaturedProducts));
+  ProductRoute.get(
+    '/api/product/featured',
+    controllerWrapper(ProductController.getFeaturedProducts),
+  );
   ProductRoute.get('/api/product/sku/:sku', controllerWrapper(ProductController.getProductBySku));
   ProductRoute.get('/api/product/:id', controllerWrapper(ProductController.getProductById));
 
