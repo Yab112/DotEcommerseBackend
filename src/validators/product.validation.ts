@@ -11,6 +11,20 @@ const dimensionsSchema = Joi.object({
 const variantSchema = Joi.object({
   name: Joi.string().required(),
   options: Joi.array().items(Joi.string().required()).required(),
+  price: Joi.number().min(0).required(),
+  stock: Joi.number().min(0).required(),
+  color: Joi.string().required(),
+  size: Joi.string().required(),
+  gender: Joi.string().valid('male', 'female', 'child', 'unisex').required(),
+  images: Joi.array().items(Joi.string().uri()).min(1).required(),
+  attributes: Joi.array()
+    .items(
+      Joi.object({
+        key: Joi.string().required(),
+        value: Joi.string().required(),
+      }),
+    )
+    .optional(),
 });
 
 const specificationSchema = Joi.object({
@@ -22,19 +36,30 @@ const specificationSchema = Joi.object({
 export const createProductSchema = Joi.object({
   name: Joi.string().min(3).max(100).required(),
   description: Joi.string().min(10).required(),
+  type: Joi.string().required(),
   sku: Joi.string().required(),
   price: Joi.number().min(0).required(),
-  compareAtPrice: Joi.number().min(0),
   stock: Joi.number().min(0).required(),
   category: Joi.string().required(),
   subCategory: Joi.string().optional(),
   brand: Joi.string().optional(),
   images: Joi.array().items(Joi.string().uri()).min(1).required(),
   variants: Joi.array().items(variantSchema).optional(),
-  specifications: Joi.array().items(specificationSchema).optional(),
+  specifications: Joi.array()
+    .items(
+      Joi.object({
+        key: Joi.string().required(),
+        value: Joi.string().required(),
+      }),
+    )
+    .optional(),
   tags: Joi.array().items(Joi.string()).optional(),
   weight: Joi.number().min(0).optional(),
-  dimensions: dimensionsSchema.optional(),
+  dimensions: Joi.object({
+    length: Joi.number().min(0).required(),
+    width: Joi.number().min(0).required(),
+    height: Joi.number().min(0).required(),
+  }).optional(),
   isFeatured: Joi.boolean().optional(),
 });
 
