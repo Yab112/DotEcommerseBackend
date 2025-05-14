@@ -17,12 +17,14 @@ const variantSchema = Joi.object({
   size: Joi.string().required(),
   gender: Joi.string().valid('male', 'female', 'child', 'unisex').required(),
   images: Joi.array().items(Joi.string().uri()).min(1).required(),
-  attributes: Joi.array().items(
-    Joi.object({
-      key: Joi.string().required(),
-      value: Joi.string().required()
-    })
-  ).optional()
+  attributes: Joi.array()
+    .items(
+      Joi.object({
+        key: Joi.string().required(),
+        value: Joi.string().required(),
+      }),
+    )
+    .optional(),
 });
 
 const specificationSchema = Joi.object({
@@ -43,20 +45,22 @@ export const createProductSchema = Joi.object({
   brand: Joi.string().optional(),
   images: Joi.array().items(Joi.string().uri()).min(1).required(),
   variants: Joi.array().items(variantSchema).optional(),
-  specifications: Joi.array().items(
-    Joi.object({
-      key: Joi.string().required(),
-      value: Joi.string().required()
-    })
-  ).optional(),
+  specifications: Joi.array()
+    .items(
+      Joi.object({
+        key: Joi.string().required(),
+        value: Joi.string().required(),
+      }),
+    )
+    .optional(),
   tags: Joi.array().items(Joi.string()).optional(),
   weight: Joi.number().min(0).optional(),
   dimensions: Joi.object({
     length: Joi.number().min(0).required(),
     width: Joi.number().min(0).required(),
-    height: Joi.number().min(0).required()
+    height: Joi.number().min(0).required(),
   }).optional(),
-  isFeatured: Joi.boolean().optional()
+  isFeatured: Joi.boolean().optional(),
 });
 
 // 2. Update Product
@@ -81,19 +85,19 @@ export const updateProductSchema = Joi.object({
 
 // 3. Update Stock
 export const updateProductStockSchema = Joi.object({
-  stock: Joi.number().min(0).required()
+  stock: Joi.number().min(0).required(),
 });
 
 // 4. Add Review
 export const addReviewSchema = Joi.object({
   rating: Joi.number().min(1).max(5).required(),
   comment: Joi.string().allow('').optional(),
-  userId: Joi.string().required()
+  userId: Joi.string().required(),
 });
 
 // 5. Delete Review (if applicable)
 export const deleteReviewSchema = Joi.object({
-  reviewId: Joi.string().required()
+  reviewId: Joi.string().required(),
 });
 
 // 6. Add Variant (if managed independently)
@@ -106,15 +110,15 @@ export const addVariantSchema = Joi.object({
 export const updateVariantSchema = Joi.object({
   variantId: Joi.string().required(),
   name: Joi.string().optional(),
-  options: Joi.array().items(Joi.string()).optional()
+  options: Joi.array().items(Joi.string()).optional(),
 });
 
 // 8. Bulk Stock Update (Optional)
 export const bulkUpdateStockSchema = Joi.array().items(
   Joi.object({
     productId: Joi.string().required(),
-    stock: Joi.number().min(0).required()
-  })
+    stock: Joi.number().min(0).required(),
+  }),
 );
 
 // 9. Filter Products
@@ -127,5 +131,5 @@ export const filterProductsSchema = Joi.object({
   minPrice: Joi.number().min(0).optional(),
   maxPrice: Joi.number().min(0).optional(),
   isFeatured: Joi.boolean().optional(),
-  status: Joi.string().valid('active', 'draft', 'out_of_stock', 'discontinued').optional()
+  status: Joi.string().valid('active', 'draft', 'out_of_stock', 'discontinued').optional(),
 });
