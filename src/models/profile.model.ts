@@ -40,6 +40,11 @@ const userSchema = new Schema<IUser>(
       unique: true,
       sparse: true,
     },
+    gender: {
+      type: String,
+      enum: ['male', 'female'],
+      required: false,
+    },
     loginMethod: {
       type: String,
       enum: ['password', 'google', 'both'],
