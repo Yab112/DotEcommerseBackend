@@ -32,6 +32,7 @@ class AuthController {
       profilePicture,
       bio,
       isAdmin,
+      gender,
     } = req.body;
     const user = await authService.registerUser(
       firstName,
@@ -40,6 +41,7 @@ class AuthController {
       password,
       phone,
       dateOfBirth,
+      gender,
       address,
       profilePicture,
       bio,

@@ -15,6 +15,7 @@ export class AuthService {
     password: string,
     phone?: string,
     dateOfBirth?: Date,
+    gender?: string,
     address?: {
       street?: string;
       city?: string;
@@ -35,6 +36,7 @@ export class AuthService {
       email,
       password: hashedPassword,
       phone,
+      gender,
       dateOfBirth,
       address,
       profilePicture,

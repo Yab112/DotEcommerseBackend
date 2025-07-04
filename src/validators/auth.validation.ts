@@ -20,6 +20,7 @@ export const registerSchema = Joi.object({
     country: Joi.string().optional(),
   }).optional(),
   dateOfBirth: Joi.date().iso().optional(),
+  gender: Joi.string().optional(),
   isAdmin: Joi.boolean().optional(),
 });
 
