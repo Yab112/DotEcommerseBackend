@@ -4,6 +4,7 @@ export interface IUser {
   lastName: string;
   email: string;
   password: string;
+  gender: string;
   googleId?: string;
   loginMethod?: 'password' | 'google' | 'both';
   profilePicture?: string;
@@ -36,6 +37,7 @@ export interface RegisterDTO {
   email: string;
   password: string;
   phone?: string;
+  gender?: string;
   profilePicture?: string;
   bio?: string;
   address?: {
