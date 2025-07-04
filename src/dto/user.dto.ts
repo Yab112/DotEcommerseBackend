@@ -35,7 +35,19 @@ export interface RegisterDTO {
   lastName: string;
   email: string;
   password: string;
-  phone?: string; // Added to match controller usage
+  phone?: string;
+  profilePicture?: string;
+  bio?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  };
+  dateOfBirth?: Date;
+  isAdmin?: boolean;
+  // Do not allow user to set googleId, loginMethod, isVerified, orders, cart, createdAt, updatedAt
 }
 
 export interface OtpDTO {

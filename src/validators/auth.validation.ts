@@ -10,6 +10,17 @@ export const registerSchema = Joi.object({
     .pattern(/^[0-9]+$/)
     .length(10)
     .optional(),
+  profilePicture: Joi.string().uri().optional(),
+  bio: Joi.string().max(500).optional(),
+  address: Joi.object({
+    street: Joi.string().optional(),
+    city: Joi.string().optional(),
+    state: Joi.string().optional(),
+    postalCode: Joi.string().optional(),
+    country: Joi.string().optional(),
+  }).optional(),
+  dateOfBirth: Joi.date().iso().optional(),
+  isAdmin: Joi.boolean().optional(),
 });
 
 export const loginSchema = Joi.object({

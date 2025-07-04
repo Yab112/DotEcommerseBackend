@@ -21,8 +21,30 @@ import {
 
 class AuthController {
   async register(req: Request<unknown, unknown, RegisterDTO>, res: Response) {
-    const { firstName, lastName, email, password, phone } = req.body;
-    const user = await authService.registerUser(firstName, lastName, email, password, phone);
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      phone,
+      dateOfBirth,
+      address,
+      profilePicture,
+      bio,
+      isAdmin,
+    } = req.body;
+    const user = await authService.registerUser(
+      firstName,
+      lastName,
+      email,
+      password,
+      phone,
+      dateOfBirth,
+      address,
+      profilePicture,
+      bio,
+      isAdmin,
+    );
     logger.info('User registered', { email, userId: user._id });
     res.status(201).json({ message: 'User registered. OTP sent.', userId: user._id });
   }

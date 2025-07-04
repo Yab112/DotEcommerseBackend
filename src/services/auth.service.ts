@@ -14,6 +14,17 @@ export class AuthService {
     email: string,
     password: string,
     phone?: string,
+    dateOfBirth?: Date,
+    address?: {
+      street?: string;
+      city?: string;
+      state?: string;
+      postalCode?: string;
+      country?: string;
+    },
+    profilePicture?: string,
+    bio?: string,
+    isAdmin?: boolean,
   ): Promise<IUser> {
     const existing = await User.findOne({ email });
     if (existing) throw new Error('User already exists');
@@ -24,6 +35,11 @@ export class AuthService {
       email,
       password: hashedPassword,
       phone,
+      dateOfBirth,
+      address,
+      profilePicture,
+      bio,
+      isAdmin,
       isVerified: false,
       loginMethod: 'password',
     });
